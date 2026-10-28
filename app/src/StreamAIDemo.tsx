@@ -1,6 +1,7 @@
 import * as React from "react"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
+import { readAssistantRegistry } from "./assistant-registry"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   ArrowLeft,
@@ -55,6 +56,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarProvider,
   SidebarTrigger,
   useSidebar,
@@ -74,18 +78,27 @@ const labels: Record<Page, string> = {
   home: "Home",
   video: "Video",
   library: "Library",
-  search: "AI Discovery",
+  search: "AI Chatbot",
   detail: "AI Metadata",
+}
+function DiscoveryIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M13 1.5c.45 0 .72.3.83.78l1.65 7.24 7.24 1.65c.48.11.78.38.78.83s-.3.72-.78.83l-7.24 1.65-1.65 7.24c-.11.48-.38.78-.83.78s-.72-.3-.83-.78l-1.65-7.24-7.24-1.65c-.48-.11-.78-.38-.78-.83s.3-.72.78-.83l7.24-1.65 1.65-7.24c.11-.48.38-.78.83-.78Z" />
+      <circle cx="3.5" cy="20.5" r="2" />
+    </svg>
+  )
 }
 const nav = [
   { page: "home" as const, icon: Home },
   { page: "video" as const, icon: Clapperboard },
   { page: "library" as const, icon: LibraryBig },
-  { page: "search" as const, icon: Search },
+  { page: "search" as const, icon: DiscoveryIcon },
 ]
 const discoverySections = [
-  { id: "list", label: "Demo List" },
+  { id: "list", label: "All Chatbot" },
   { id: "settings", label: "Settings" },
+  { id: "personalization", label: "Personalization" },
   { id: "content", label: "Searchable Content" },
   { id: "playground", label: "Playground" },
   { id: "conversations", label: "Conversations" },
@@ -111,7 +124,7 @@ const statuses: AnalysisStatus[] = [
 function pageFromHash(): Page {
   const hash = window.location.hash.slice(1)
   if (hash === "search" || hash.startsWith("search/")) return "search"
-  if (hash === "detailpage" || hash.startsWith("detail/") || hash.startsWith("detailpage/")) return "detail"
+  if (hash.startsWith("detail")) return "detail"
   if (
     hash === "home" ||
     hash === "video" ||
@@ -548,6 +561,9 @@ function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
 function Workspace() {
   const [page, setPage] = React.useState<Page>(pageFromHash)
   const [activeDemo, setActiveDemo] = React.useState<string | null>(demoFromHash)
+  const [assistantRegistry, setAssistantRegistry] = React.useState(readAssistantRegistry)
+  const [assistantSearch, setAssistantSearch] = React.useState("")
+  const [lastAssistant, setLastAssistant] = React.useState(() => demoFromHash() || readAssistantRegistry().find(a => a.status !== "Archived")?.id || "")
   const [discoverySection, setDiscoverySection] = React.useState(sectionFromHash)
   const [query, setQuery] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState("all")
@@ -561,10 +577,17 @@ function Workspace() {
   const { isMobile, setOpenMobile } = useSidebar()
 
   React.useEffect(() => {
+    const sync = () => { const items = readAssistantRegistry(); setAssistantRegistry(items); setLastAssistant(previous => items.some(item => item.id === previous && item.status !== "Archived") ? previous : items.find(item => item.status !== "Archived")?.id || "") }
+    window.addEventListener("general-assistants-changed", sync)
+    window.addEventListener("storage", sync)
+    return () => { window.removeEventListener("general-assistants-changed", sync); window.removeEventListener("storage", sync) }
+  }, [])
+
+  React.useEffect(() => {
     const onHashChange = () => {
       const next = pageFromHash()
       setPage(next)
-      if (next === "search") { setDiscoverySection(sectionFromHash()); setActiveDemo(demoFromHash()); }
+      if (next === "search") { setDiscoverySection(sectionFromHash()); setActiveDemo(demoFromHash()); if (demoFromHash()) setLastAssistant(demoFromHash()!); }
       if (next === "detail") {
         const id = window.location.hash.slice(1).split("/")[1]
         setSelected(videos.find((video) => video.id === id) ?? videos[0])
@@ -583,17 +606,20 @@ function Workspace() {
 
   const navigateDiscovery = (section: string) => {
     if (!discoverySections.some(item => item.id === section)) return
-    const next = section !== "list" && activeDemo ? section : "list"
+    const target = activeDemo || lastAssistant
+    const next = section !== "list" && target ? section : "list"
+    if (next !== "list") setActiveDemo(target)
     setPage("search")
    
     setDiscoverySection(next)
     if (next === "list") setActiveDemo(null)
-    const hash = next === "list" ? "#search" : `#search/${activeDemo}/${next}`
+    const hash = next === "list" ? "#search" : `#search/${target}/${next}`
     if (window.location.hash !== hash) window.history.pushState(null, "", hash)
     if (isMobile) setOpenMobile(false)
   }
   const chooseDemo = (id: string | null, section = "settings") => {
     setActiveDemo(id)
+    if (id) setLastAssistant(id)
     setPage("search")
    
     setDiscoverySection(id ? section : "list")
@@ -653,6 +679,10 @@ function Workspace() {
                     <Icon aria-hidden="true" />
                     <span>{labels[item]}</span>
                   </SidebarMenuButton>
+                  {item === "search" && page === "search" && <div className="mt-2 space-y-3 border-l border-sidebar-border ml-4 pl-3">
+                    <div className="space-y-1.5"><p className="px-1 text-[10px] text-muted-foreground">目前 Chatbot</p><Select value={activeDemo || lastAssistant} onOpenChange={open => { if (open) setAssistantSearch("") }} onValueChange={id => chooseDemo(id, discoverySection === "list" ? "settings" : discoverySection)}><SelectTrigger aria-label="切換目前 Chatbot" className="w-full min-w-0"><SelectValue placeholder="Select Chatbot" /></SelectTrigger><SelectContent><div className="p-2"><Input aria-label="搜尋 Chatbot" placeholder="Search chatbots…" value={assistantSearch} onChange={e => setAssistantSearch(e.target.value)} onKeyDown={e => { if(e.key!=="Escape")e.stopPropagation() }} /></div>{assistantRegistry.filter(a => a.status !== "Archived" || a.id === activeDemo).filter(a => a.name.toLowerCase().includes(assistantSearch.toLowerCase())).map(a => <SelectItem key={a.id} value={a.id}>{a.name}{a.status === "Archived" ? "（已封存）" : ""}</SelectItem>)}</SelectContent></Select></div>
+                    <SidebarMenuSub aria-label="目前 Chatbot 的功能" className="mx-0 ml-3 mt-1 pr-0 pl-3">{discoverySections.filter(s => s.id !== "list").map(s => <SidebarMenuSubItem key={s.id}><SidebarMenuSubButton asChild isActive={discoverySection === s.id && !!activeDemo} className="h-9 text-sm"><button type="button" disabled={!activeDemo && !lastAssistant} onClick={() => navigateDiscovery(s.id)} aria-current={discoverySection === s.id && !!activeDemo ? "page" : undefined}><span>{s.label}</span></button></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub>
+                  </div>}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -678,7 +708,7 @@ function Workspace() {
                     {page === "detail" ? "Video" : labels[page]}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
-                {page === "search" && <><BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
+                {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
                 {page === "video" && (
                   <>
                     <BreadcrumbSeparator />

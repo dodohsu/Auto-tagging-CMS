@@ -17,7 +17,7 @@ type Config = { name: string; greeting: string; questions: string[]; sources: st
 type Reply = { text: string; ids: string[]; reason: string }
 type Turn = { user: string; reply: Reply }
 type Review = { status: string; suggestion: string; note: string }
-const initial: Config = { name: "StreamAI Assistant", greeting: "今天想看什麼？告訴我人物、心情或你記得的片段。", questions: ["找上週的偶像表演", "想看輕鬆療癒的內容", "推薦美食節目"], sources: catalog.filter(c => c.approved && c.available).map(c => c.id), featured: ["TELA-6825", "DEMO-LIVE-01"], fallback: "目前沒有找到符合條件的內容。你可以補充人物、節目或日期，也可以看看以下精選。" }
+const initial: Config = { name: "KK lab Assistant", greeting: "今天想看什麼？告訴我人物、心情或你記得的片段。", questions: ["找上週的偶像表演", "想看輕鬆療癒的內容", "推薦美食節目"], sources: catalog.filter(c => c.approved && c.available).map(c => c.id), featured: ["TELA-6825", "DEMO-LIVE-01"], fallback: "目前沒有找到符合條件的內容。你可以補充人物、節目或日期，也可以看看以下精選。" }
 const histories = [
   { id: "CON-1042", date: "10/27 10:24", topic: "找上週喜歡的偶像表演", outcome: "未解決", clicked: "未點擊", turns: [{ user: "上週有我喜歡的偶像出席的表演，是哪一場？", reply: { text: "你記得是哪位偶像嗎？", ids: [], reason: "缺少人物資訊；需要追問。" } }, { user: "星野凜", reply: { text: "你可能想找這場訪談。", ids: ["DEMO-LIVE-02"], reason: "人物符合，但未確認使用者要找的是演出。" } }] },
   { id: "CON-1041", date: "10/27 09:58", topic: "想看輕鬆的美食內容", outcome: "已找到內容", clicked: "已點擊影片", turns: [{ user: "想看輕鬆的美食節目", reply: { text: "這部美食內容或許適合你。", ids: ["TELA-6825"], reason: "Theme：美食；Mood：輕鬆。" } }] },

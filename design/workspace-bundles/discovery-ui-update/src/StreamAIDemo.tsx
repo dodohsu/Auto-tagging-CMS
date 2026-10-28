@@ -657,7 +657,7 @@ function Workspace() {
             />
             <div>
               <div className="text-base leading-tight font-semibold tracking-tight">
-                StreamAI
+                KK lab
               </div>
               <div className="text-[10px] text-muted-foreground">
                 OTT Content Intelligence
@@ -926,7 +926,7 @@ function Workspace() {
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {page === "home"
-                      ? "Your StreamAI content intelligence overview."
+                      ? "Your KK lab content intelligence overview."
                       : "Find content by meaning, mood, visual style, or audience."}
                   </p>
                 </div>

@@ -589,7 +589,7 @@ function Workspace() {
             />
             <div>
               <div className="text-base leading-tight font-semibold tracking-tight">
-                StreamAI
+                KK lab
               </div>
               <div className="text-[10px] text-muted-foreground">
                 OTT Content Intelligence
@@ -851,7 +851,7 @@ function Workspace() {
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {page === "home"
-                      ? "Your StreamAI content intelligence overview."
+                      ? "Your KK lab content intelligence overview."
                       : "Find content by meaning, mood, visual style, or audience."}
                   </p>
                 </div>
@@ -889,7 +889,7 @@ function Workspace() {
                       <CardHeader className="border-b bg-muted/20">
                         <CardTitle>Find content with a sentence</CardTitle>
                         <CardDescription>
-                          用自然語言描述你想找的情境，StreamAI 會從影片 metadata 與 AI tags 找出相關內容。
+                          用自然語言描述你想找的情境，KK lab 會從影片 metadata 與 AI tags 找出相關內容。
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-6 p-6">

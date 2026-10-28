@@ -14,7 +14,7 @@ OTT CMS 的 Local-first 協作專案。先在本機整理產品文件、設計�
 
 - `docs/product/`：產品範圍、功能與迭代記錄
 - `design/`：設計原則、參考與多版本提案
-- `demo/index.html`：StreamAI 靜態 Demo；目前以 shadcn/ui 的設計基礎呈現，可直接用瀏覽器開啟
+- `demo/index.html`：KK lab 靜態 Demo；目前以 shadcn/ui 的設計基礎呈現，可直接用瀏覽器開啟
 - `app/`：React／Vite 前端，已安裝 shadcn/ui 元件；在此目錄執行 `npm run dev` 可啟動開發預覽
 - `src/`：Demo 元件、功能、版型、主題與假資料
 

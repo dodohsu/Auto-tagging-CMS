@@ -97,7 +97,7 @@ export default function AIChapter({ video }: { video: Video }) {
   const [chapters, setChapters] = useState<Chapter[]>(() => {
     try {
       const saved = JSON.parse(
-        localStorage.getItem(`streamai-chapters-${video.id}`) || "null"
+        localStorage.getItem(`KK lab-chapters-${video.id}`) || "null"
       )
       if (
         saved?.duration === duration &&

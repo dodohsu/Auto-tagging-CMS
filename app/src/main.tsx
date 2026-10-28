@@ -8,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="light" storageKey="streamai-theme">
+    <ThemeProvider defaultTheme="light" storageKey="KK lab-theme">
       <TooltipProvider><App /></TooltipProvider>
     </ThemeProvider>
   </StrictMode>

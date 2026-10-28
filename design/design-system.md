@@ -1,8 +1,8 @@
-# StreamAI CMS 設計系統（參考圖整理稿）
+# KK lab CMS 設計系統（參考圖整理稿）
 
 > 文件狀態：提案／待 PO 與設計確認  
 > 參考來源：`image(20261025-163254).png`（1536 × 1024）  
-> 適用範圍：StreamAI CMS 的 Home、Video List、Video Detail、AI Chapter、場景與章節、AI Search List、AI Search Detail  
+> 適用範圍：KK lab CMS 的 Home、Video List、Video Detail、AI Chapter、場景與章節、AI Search List、AI Search Detail  
 > 最後更新：2026-10-26
 
 ## 1. 文件定位與判讀原則
@@ -177,7 +177,7 @@ background:
 
 #### 結構（可確認）
 
-1. 品牌區：彩色光暈標誌、`StreamAI`、副標 `OTT Content Intelligence`。
+1. 品牌區：彩色光暈標誌、`KK lab`、副標 `OTT Content Intelligence`。
 2. 一級導覽：首頁、影片庫、AI 分析。
 3. 展開中的內容管理群組：群組標題及向上 Chevron。
 4. 二級導覽：基本資訊、AI 標籤、分段＆章節、場景與章節、封面管理、演員與成效。

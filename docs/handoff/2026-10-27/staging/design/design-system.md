@@ -1,6 +1,6 @@
-# StreamAI CMS Design System（新版英文 UI）
+# KK lab CMS Design System（新版英文 UI）
 
-> **目前 Demo 的暫行實作基礎（2026-10-26）：[shadcn/ui](https://ui.shadcn.com/)。** 以其語意 token 與 Sidebar、Card、Button、Input、Select、Table、Badge 等元件作為優先參考；主色維持 StreamAI 藍色。React／Vite 原始碼與已安裝元件位於 `app/`，`demo/index.html` 則是可直接開啟的建置產物。舊版單檔靜態參考保留於 `design/variants/streamai-static-library.html`。下列參考圖觀察與舊版建議 token 保留作為畫面需求與比較資料；若與本段的元件基礎衝突，以 shadcn/ui 基礎為準。
+> **目前 Demo 的暫行實作基礎（2026-10-26）：[shadcn/ui](https://ui.shadcn.com/)。** 以其語意 token 與 Sidebar、Card、Button、Input、Select、Table、Badge 等元件作為優先參考；主色維持 KK lab 藍色。React／Vite 原始碼與已安裝元件位於 `app/`，`demo/index.html` 則是可直接開啟的建置產物。舊版單檔靜態參考保留於 `design/variants/KK lab-static-library.html`。下列參考圖觀察與舊版建議 token 保留作為畫面需求與比較資料；若與本段的元件基礎衝突，以 shadcn/ui 基礎為準。
 
 ## 暫行元件對照
 
@@ -62,7 +62,7 @@
 ### 畫面觀察：英文資訊架構
 
 ```text
-StreamAI
+KK lab
 OTT Content Intelligence
 ├─ Home
 ├─ Library
@@ -80,7 +80,7 @@ OTT Content Intelligence
 └─ Settings                              [bottom anchored]
 ```
 
-- 品牌區包含漸層圓形標誌、`StreamAI` 與副標。
+- 品牌區包含漸層圓形標誌、`KK lab` 與副標。
 - 一級導覽使用 outline icon＋英文標籤；Content Management 顯示展開 chevron。
 - 子選單由細直線串接；AI Metadata 以淡藍 pill、藍字與左側藍色短條表示選取。
 - AI Search、Analytics 與上方群組有較大垂直距離；Settings 位於底部。

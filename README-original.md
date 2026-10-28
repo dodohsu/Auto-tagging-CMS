@@ -21,7 +21,7 @@ OTT CMS 的 Local-first 協作專案。先在本機整理產品文件、設計�
 目前只初始化本機 Git，不建立 remote。待團隊確認 repository、權限與分支策略後，再加入 GitHub remote。
 
 
-## StreamAI Demo
+## KK lab Demo
 
 - `app/`：React／Vite 原始碼；執行 `npm install` 後可用 `npm run dev` 開發。
 - `demo/`：已建置的可預覽版本；執行 `python3 -m http.server 5173 --bind 127.0.0.1 --directory demo`，開啟 http://127.0.0.1:5173/。

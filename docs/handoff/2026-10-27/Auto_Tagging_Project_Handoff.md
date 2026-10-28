@@ -1,4 +1,4 @@
-# StreamAI｜B2B OTT Auto-Tagging 專案交接文件
+# KK lab｜B2B OTT Auto-Tagging 專案交接文件
 
 > **用途**：將本帳號的 Auto-tagging 專案研究、產品決策、UI/UX 討論及待辦移交至另一個 ChatGPT 帳號。  
 > **整理日期**：2026-10-27  
@@ -7,7 +7,7 @@
 
 ## 0. 專案一句話定位
 
-**StreamAI / OTT Content Intelligence** 是面向 OTT、VOD、直播／廣播平台的 B2B SaaS 概念，透過 AI 分析影片、產生多層級 Metadata，讓內容營運團隊在 CMS 中審核、調整與發布，最終支援 C 端自然語言 AI Search、AI Chapter、片段搜尋及個人化封面。
+**KK lab / OTT Content Intelligence** 是面向 OTT、VOD、直播／廣播平台的 B2B SaaS 概念，透過 AI 分析影片、產生多層級 Metadata，讓內容營運團隊在 CMS 中審核、調整與發布，最終支援 C 端自然語言 AI Search、AI Chapter、片段搜尋及個人化封面。
 
 **核心產品原則**：先以可展示的 CMS Demo 驗證 B2B 價值，再逐階段擴充；AI 的產出需要人工可審核、可編輯、可追溯；不急於取代 OTT 既有 CMS，而是提供可整合的 Metadata Enrichment Layer。
 
@@ -17,14 +17,14 @@
 - 目標客戶：優先 OTT／串流平台，其次媒體資產管理、廣播、體育、影音內容平台。
 - 希望初期快速驗證方向，產品需求可能與 PO 共編，每週迭代；先 Local-first，未來再以 GitHub 協作。
 - 介面偏好：極簡、時尚、具科技感，但避免過度花俏、過多 icon、重度玻璃裝飾。
-- **最後確認的視覺基準**：英文版 StreamAI AI Metadata UI 參考圖；柔和灰藍／淺灰漸層背景、白色或半透明柔和 Panel、圓角 Pill、低對比陰影、清晰排版；**品牌強調色保留藍色**（不是紫色）；側欄避免厚重深色背板。
+- **最後確認的視覺基準**：英文版 KK lab AI Metadata UI 參考圖；柔和灰藍／淺灰漸層背景、白色或半透明柔和 Panel、圓角 Pill、低對比陰影、清晰排版；**品牌強調色保留藍色**（不是紫色）；側欄避免厚重深色背板。
 - 設計系統應可跨 Home、Library、Video Detail、AI Chapter、Scenes、AI Search 等模組一致使用。
 
 ## 2. 競品研究（全球 → 日本 → 台灣）
 
 ### 全球：優先研究
 
-| 競品 | 產品角色／典型情境 | 對 StreamAI 的參考價值 | 客戶與案例注意事項 |
+| 競品 | 產品角色／典型情境 | 對 KK lab 的參考價值 | 客戶與案例注意事項 |
 |---|---|---|---|
 | **Moments Lab (MXT)** | AI MAM、影片索引、時間碼搜尋、內容檢索、Metadata | Shot／Segment 描述、時間碼、人工審核、MAM 串接 | 過去研究提及 M6 Group、Asharq News、LNR、Brut. 等；移交後需逐案重新核對官方案例 |
 | **AnyClip (Genius / Genius+)** | AI Video Intelligence、內容標籤、管理、廣告與影片分發 | Metadata 分類、內容營運工作台、品牌安全／變現 | 過去研究提及 Graham Media Group、Fandom；務必區分直接客戶、合作夥伴與歷史案例 |
@@ -180,7 +180,7 @@ Content / Video Asset
 ### 初期主導航（最新簡化決策）
 
 ```text
-StreamAI
+KK lab
 ├── Home
 ├── Library
 │   ├── Video List
@@ -232,7 +232,7 @@ StreamAI
 
 ### 視覺方向
 
-- 參考圖：**英文版 StreamAI AI Metadata 畫面**（最後更新版），不是較早的深色 Sidebar 中文版。
+- 參考圖：**英文版 KK lab AI Metadata 畫面**（最後更新版），不是較早的深色 Sidebar 中文版。
 - 風格：**Minimal / Contemporary / Soft Tech**；背景柔和的灰藍／白色漸層、少量模糊柔光、白色低對比浮層；重視資訊密度與閱讀清晰度。
 - 強調色：**Blue**；參考圖若使用紫色 Selected Chips，應轉為藍色。
 - 深色接近黑／深海軍藍：用於主要 CTA、Active Tab；不使用大面積深色 Sidebar。
@@ -319,7 +319,7 @@ ott-cms/
 
 ## 13. 建議下一步
 
-**第一優先：** 確認 `ott-cms` 專案與 `design-system.md`、HTML Demo 實際檔案，並以最新英文版 StreamAI UI 基準完成可操作的 **Library List → Video Detail / AI Metadata** 流程。
+**第一優先：** 確認 `ott-cms` 專案與 `design-system.md`、HTML Demo 實際檔案，並以最新英文版 KK lab UI 基準完成可操作的 **Library List → Video Detail / AI Metadata** 流程。
 
 **第二優先：** 製作 Chapters & Scenes 的簡單可編輯 Timeline，示範 AI 先分段、人工拖曳微調、Clip Tags 審核。
 
@@ -329,12 +329,12 @@ ott-cms/
 
 ## 14. 可直接貼到新帳號的「繼續專案指令」
 
-> 我正在規劃一個名為 StreamAI 的 B2B OTT Content Intelligence SaaS，核心是 Auto-Tagging、AI Chapter／Clip、AI Search 與 CMS 管理。請先完整閱讀我附上的 `Auto_Tagging_Project_Handoff.md`，把它視為本專案的歷史背景與目前設計決策，但**不要將尚未驗證的示意數據當成正式產品規格**。我們已確立 Content-level Metadata → Chapter → Clip → Tags 的概念架構，AI 分段後需要人工可調整時間，Scene 作為視覺辨識／Evidence，AI Search Playground 在 CMS 中展示 C 端自然語言搜尋。UI 請遵守最後確認的英文版 StreamAI 設計方向：灰藍柔和漸層、極簡白色卡片、圓角 Pill、低對比陰影、**藍色主色**，避免重度玻璃擬態與大量 icon。主導航暫時只有 Home、Library、AI Search。當前優先工作是完成 Library Video List 的可操作 HTML Demo，再串接 Video Detail / AI Metadata；請先檢查我上傳的專案檔案和 Design System，再提出下一步，不要自行改寫已確認的 IA 或假設不存在的檔案已完成。
+> 我正在規劃一個名為 KK lab 的 B2B OTT Content Intelligence SaaS，核心是 Auto-Tagging、AI Chapter／Clip、AI Search 與 CMS 管理。請先完整閱讀我附上的 `Auto_Tagging_Project_Handoff.md`，把它視為本專案的歷史背景與目前設計決策，但**不要將尚未驗證的示意數據當成正式產品規格**。我們已確立 Content-level Metadata → Chapter → Clip → Tags 的概念架構，AI 分段後需要人工可調整時間，Scene 作為視覺辨識／Evidence，AI Search Playground 在 CMS 中展示 C 端自然語言搜尋。UI 請遵守最後確認的英文版 KK lab 設計方向：灰藍柔和漸層、極簡白色卡片、圓角 Pill、低對比陰影、**藍色主色**，避免重度玻璃擬態與大量 icon。主導航暫時只有 Home、Library、AI Search。當前優先工作是完成 Library Video List 的可操作 HTML Demo，再串接 Video Detail / AI Metadata；請先檢查我上傳的專案檔案和 Design System，再提出下一步，不要自行改寫已確認的 IA 或假設不存在的檔案已完成。
 
 ## 15. 跨帳號移交操作
 
 1. 在原帳號下載本 Markdown 文件。
-2. 於新帳號建立專案（建議名稱：**Auto-tagging / StreamAI**），上傳本 Markdown。
-3. 同時上傳最新 **英文版 StreamAI AI Metadata UI 參考圖**、`design-system.md`（若已生成）及 `ott-cms` 專案程式碼／ZIP（若需要繼續實作）。
+2. 於新帳號建立專案（建議名稱：**Auto-tagging / KK lab**），上傳本 Markdown。
+3. 同時上傳最新 **英文版 KK lab AI Metadata UI 參考圖**、`design-system.md`（若已生成）及 `ott-cms` 專案程式碼／ZIP（若需要繼續實作）。
 4. 把第 14 節的「繼續專案指令」貼到新對話，要求先盤點現有檔案與待辦。
 5. 若需要逐字歷史聊天，請另外透過原帳號 ChatGPT 資料匯出功能取得原始對話；本文件是**整理版交接摘要**，不是原始聊天紀錄。

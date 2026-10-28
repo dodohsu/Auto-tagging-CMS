@@ -30,15 +30,15 @@ type Clip = {
 }
 type Chapter = { id: string; name: string; clips: Clip[] }
 const topicColors: Record<string, string> = {
-  城市: "#ccdbea",
-  旅行: "#c7ddd8",
-  在地文化: "#ddd1e8",
-  探索: "#e7dcc5",
-  美食: "#e8cfd5",
-  料理: "#ead6c9",
-  療癒: "#d0dfcc",
-  職人: "#d2d4e9",
-  人情味: "#e2d0df",
+  城市: "#bfd8ec",
+  旅行: "#b9ddd4",
+  在地文化: "#d8c3e8",
+  探索: "#e9d7b8",
+  美食: "#ebc5cf",
+  料理: "#ebcdbb",
+  療癒: "#c9e0c1",
+  職人: "#c6cae9",
+  人情味: "#e2c4d9",
 }
 const names = [
   "城市裡的出發",
@@ -825,10 +825,6 @@ export default function AIChapter({ video }: { video: Video }) {
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                拖曳紅線或點擊下方時間刻度可定位；方向鍵微調 1
-                秒，Shift＋方向鍵微調 10 秒。
-              </p>
             </CardContent>
           </Card>
           <Card className="border-neutral-300 bg-neutral-50 py-4 shadow-none">

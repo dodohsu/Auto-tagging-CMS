@@ -1,4 +1,5 @@
 import * as React from "react"
+import AddVideo from "./AddVideo"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
 import { readAssistantRegistry } from "./assistant-registry"
@@ -73,10 +74,11 @@ import {
 } from "@/components/ui/table"
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 
-type Page = "home" | "video" | "library" | "search" | "detail"
+type Page = "home" | "video" | "library" | "search" | "detail" | "add-video"
 const labels: Record<Page, string> = {
+  "add-video": "Add Content",
   home: "Home",
-  video: "Video",
+  video: "Content",
   library: "Library",
   search: "AI Chatbot",
   detail: "AI Metadata",
@@ -123,6 +125,7 @@ const statuses: AnalysisStatus[] = [
 
 function pageFromHash(): Page {
   const hash = window.location.hash.slice(1)
+  if (hash === "add-video") return "add-video"
   if (hash === "search" || hash.startsWith("search/")) return "search"
   if (hash.startsWith("detail")) return "detail"
   if (
@@ -306,7 +309,7 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
 
 function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
   const [activeTab, setActiveTab] = React.useState("AI Metadata")
-  const tabs = ["AI Metadata", "Chapters & Clips"]
+  const tabs = ["AI Metadata", "AI Chapter"]
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -326,7 +329,7 @@ function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
                   className="text-muted-foreground hover:text-foreground"
                   onClick={onBack}
                 >
-                  Video
+                  Content
                 </button>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -573,7 +576,6 @@ function Workspace() {
     const id = window.location.hash.slice(1).split("/")[1]
     return videos.find((video) => video.id === id) ?? videos[0]
   })
-  const [addVideoOpen, setAddVideoOpen] = React.useState(false)
   const { isMobile, setOpenMobile } = useSidebar()
 
   React.useEffect(() => {
@@ -657,7 +659,7 @@ function Workspace() {
             />
             <div>
               <div className="text-base leading-tight font-semibold tracking-tight">
-                StreamAI
+                KK Lab
               </div>
               <div className="text-[10px] text-muted-foreground">
                 OTT Content Intelligence
@@ -671,7 +673,7 @@ function Workspace() {
               {nav.map(({ page: item, icon: Icon }) => (
                 <SidebarMenuItem key={item}>
                   <SidebarMenuButton
-                    isActive={page === item}
+                    isActive={page === item || (page === "add-video" && item === "video")}
                     onClick={() => item === "search" ? chooseDemo(null) : navigate(item)}
                     aria-current={page === item ? "page" : undefined}
                     className="h-10 rounded-lg px-3"
@@ -690,7 +692,7 @@ function Workspace() {
         </SidebarContent>
         <SidebarFooter className="px-5 pb-5 text-xs text-muted-foreground">
           <div className="border-t border-sidebar-border pt-4">
-            Demo workspace
+            Preview mode
             <br />
             Local mock data
           </div>
@@ -705,7 +707,7 @@ function Workspace() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {page === "detail" ? "Video" : labels[page]}
+                    {page === "detail" ? "Content" : labels[page]}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
                 {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
@@ -713,7 +715,7 @@ function Workspace() {
                   <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                      <span>All videos</span>
+                    <span>All content</span>
                     </BreadcrumbItem>
                   </>
                 )}
@@ -728,47 +730,25 @@ function Workspace() {
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "detail" && selected ? (
+          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "detail" && selected ? (
             <DetailPage video={selected} onBack={() => navigate("video")} />
           ) : page === "video" ? (
             <>
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold tracking-widest text-primary uppercase">
-                    Content workspace
-                  </div>
                   <h1 className="text-3xl font-semibold tracking-tight">
-                    Video
+                    Content
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Browse, filter, and review AI analysis across your video
                     catalog.
                   </p>
                 </div>
-                <Button onClick={() => setAddVideoOpen((open) => !open)}>
+                <Button onClick={() => navigate("add-video")}>
                   <Plus />
-                  Add Video
+                  Add Content
                 </Button>
               </div>
-              {addVideoOpen && (
-                <Card className="mb-4 border-dashed shadow-none">
-                  <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
-                    <div>
-                      <p className="font-medium">Add Video</p>
-                      <p className="text-sm text-muted-foreground">
-                        上傳入口已建立，Demo 目前使用本地 Mock
-                        data；接入後端後可在此選擇影片檔案並開始 AI 分析。
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setAddVideoOpen(false)}
-                    >
-                      Close
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
               <Card className="gap-0 overflow-hidden py-0 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2 border-b p-4">
                   <div className="relative min-w-[220px] flex-1 sm:max-w-sm">
@@ -830,7 +810,7 @@ function Workspace() {
                     <TableHeader>
                       <TableRow className="bg-muted/50 hover:bg-muted/50">
                         <TableHead className="pl-5 text-xs uppercase">
-                          Video
+                          Content
                         </TableHead>
                         <TableHead className="text-xs uppercase">
                           Type
@@ -918,9 +898,6 @@ function Workspace() {
             <>
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold tracking-widest text-primary uppercase">
-                    {page === "home" ? "Workspace" : "AI discovery"}
-                  </div>
                   <h1 className="text-3xl font-semibold tracking-tight">
                     {page === "home" ? "Welcome back" : "AI Search"}
                   </h1>
@@ -938,14 +915,14 @@ function Workspace() {
                     </CardTitle>
                     <CardDescription>
                       {page === "home"
-                        ? "This section is a placeholder in the demo. Browse Video to explore the interactive video catalog."
+                        ? "This section is a placeholder in the demo. Browse Content to explore the interactive video catalog."
                         : "這裡將集中管理已生成的 Highlight 影片、草稿、分享連結與使用統計。"}
                     </CardDescription>
                     <Button
                       className="mx-auto mt-4"
                       onClick={() => navigate("video")}
                     >
-                      Open Video
+                      Open Content
                     </Button>
                   </CardHeader>
                 </Card>

@@ -199,3 +199,10 @@
 - 主 app 同步 discovery-ui-update 的 Chatbot 切換器、Settings、Searchable Content 表格與 Profile 規則版本。
 - 詳情頁連結沿用 #detailpage。
 - Add Video 新版來源待確認。
+
+
+### 2026-10-28 | 昨晚版本來源補齊
+
+- 主 app 改用 ChatGPT/hi/add-video-flow 的完整 src：AddVideo 00:06、StreamAIDemo 00:10、AISearchMVP 00:02、AIChapter 00:17。
+- 完整方案另存 design/workspace-bundles/add-video-flow，保留其他 UI 方案。
+- 詳情页新連結保留 #detailpage；舊編號路徑可讀取。

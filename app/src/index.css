@@ -163,6 +163,8 @@
   bottom: -28%;
   background: rgba(30, 72, 93, .75);
 }
+.thumb-1::before,
+.thumb-1::after { display: none; }
 .thumb-2 { background: linear-gradient(145deg, #e2c6b5, #885a4e); }
 .thumb-3 { background: linear-gradient(145deg, #8cc6d8, #1c5c72); }
 .thumb-4 { background: linear-gradient(145deg, #becb8d, #515f3f); }

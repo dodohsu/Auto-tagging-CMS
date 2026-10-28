@@ -73,6 +73,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
+import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 
 type Page = "home" | "video" | "library" | "search" | "detail" | "add-video"
 const labels: Record<Page, string> = {
@@ -170,6 +171,7 @@ function VideoThumbnail({
       role="img"
       aria-label={`${video.title} thumbnail`}
       className={`video-thumb thumb-${video.color} relative shrink-0 overflow-hidden rounded-md ${large ? "w-full" : "w-20 sm:w-24"} ${className}`}
+      style={video.id === "TELA-6825" ? { backgroundImage: `url(${gourmetThumbnail})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
     >
       <span className="absolute right-1 bottom-1 rounded bg-slate-950/75 px-1 py-0.5 text-[10px] leading-none text-white tabular-nums">
         {video.duration}

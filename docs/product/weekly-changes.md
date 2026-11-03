@@ -5,6 +5,7 @@
 - YouTube 播放器接上 IFrame Player API，支援章節／Clip 跳轉與播放進度同步時間軸。
 - 線上版未附本機 MP4 時，Comedy Highlight 播放器會改用指定 YouTube 嵌入影片；本機與建置輸出的 MP4 均排除版本控制。
 - Comedy Highlight 表演者篩選加入最多 10 張可點選的本機影片演出畫面縮圖，依 Clip 數排序；其餘表演者仍可透過下拉選單選取。
+- 人物縮圖改為隨網站部署的小型 JPEG 資產，線上版不依賴本機 MP4 才能顯示。
 - Comedy Highlight 主題 Filter 合併笑點類型與段子題材，依 Clip 出現次數排序並顯示前 10 個；題材為待複核的編輯候選。
 - Comedy Highlight 主題 Filter 依使用者選擇，改為六種笑點類型；片段依現有笑點手法暫分並保留待複核標示，沿用 Detail page 共用篩選樣式。
 - Comedy Highlight 的前 10 個標籤改套用 Detail page 共用 `ChapterTopicFilter` 樣式與多選行為，不再使用獨立繪製的標籤列。

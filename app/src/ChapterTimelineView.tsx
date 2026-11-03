@@ -1,0 +1,29 @@
+import { useRef } from "react"
+import type { PointerEvent } from "react"
+import { Scissors } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { CardContent } from "@/components/ui/card"
+
+type Segment = { id: string; name: string; start: number; end: number; tags: string[]; background?: string; visible?: boolean }
+type Chapter = { id: string; name: string; start: number; end: number; firstClipId: string; clipIds: string[] }
+type Props = { duration: number; time: number; onTimeChange: (time: number) => void; onPause: () => void; mode: "chapters" | "scenes"; onModeChange: (mode: "chapters" | "scenes") => void; chapters: Chapter[]; clips: Segment[]; scenes: Segment[]; selectedId: string; onSelect: (id: string) => void; description?: string }
+const timestamp = (value: number) => [Math.floor(value / 3600), Math.floor(value / 60) % 60, value % 60].map(number => String(Math.round(number)).padStart(2, "0")).join(":")
+
+export default function ChapterTimelineView({ duration, time, onTimeChange, onPause, mode, onModeChange, chapters, clips, scenes, selectedId, onSelect, description }: Props) {
+  const timelineRef = useRef<HTMLDivElement>(null)
+  const scrub = (event: PointerEvent<HTMLElement>) => { const bounds = timelineRef.current?.getBoundingClientRect(); if (!bounds?.width) return; onTimeChange(Math.round(Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width)) * duration)) }
+  const startScrub = (event: PointerEvent<HTMLElement>) => { if (event.button !== 0) return; event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); onPause(); scrub(event) }
+  const moveScrub = (event: PointerEvent<HTMLElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) scrub(event) }
+  const stopScrub = (event: PointerEvent<HTMLElement>) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) { scrub(event); event.currentTarget.releasePointerCapture(event.pointerId) } }
+  const activeChapter = chapters.findIndex(chapter => chapter.clipIds.includes(selectedId))
+  return <CardContent className="space-y-4 p-4">
+    <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">時間軸視圖</h3><div className="flex gap-1 rounded-lg bg-muted p-1">{([ ["chapters", "章節模式"], ["scenes", "場景模式"] ] as const).map(([value, label]) => <Button key={value} size="sm" variant={mode === value ? "default" : "ghost"} onClick={() => onModeChange(value)}>{label}</Button>)}</div></div>
+    <p className="text-xs text-muted-foreground">{description ?? (mode === "chapters" ? "章節連續涵蓋完整影片；調整片段邊界會同步銜接相鄰片段。" : "場景為不連續的 AI 精選時段；點擊主題可快速突出相符場景。")}</p>
+    <div ref={timelineRef} className="relative pt-1 pb-6">
+      <div className="relative h-10 overflow-hidden rounded-md bg-neutral-100">{chapters.map((chapter, index) => <button key={chapter.id} title={`${chapter.name} ${timestamp(chapter.start)} – ${timestamp(chapter.end)}`} onClick={() => onSelect(chapter.firstClipId)} className={`absolute top-0 h-10 overflow-hidden border-r border-white/70 px-1 text-xs ${index === activeChapter ? "bg-primary text-white" : "bg-neutral-200 text-neutral-700"}`} style={{ left: `${chapter.start / duration * 100}%`, width: `${(chapter.end - chapter.start) / duration * 100}%` }}>{index + 1}<span className="ml-1 hidden 2xl:inline">{chapter.name}</span></button>)}</div>
+      <div className="relative mt-2 h-8 rounded bg-neutral-100">{(mode === "chapters" ? clips : scenes).map(segment => <button key={segment.id} aria-label={`${mode === "chapters" ? "Clip" : "場景"} ${segment.name} ${timestamp(segment.start)} 至 ${timestamp(segment.end)}`} title={`${segment.name} · ${segment.tags.join(" / ")}`} onClick={() => onSelect(segment.id)} className={`absolute top-0 h-8 overflow-hidden rounded-sm border border-white text-[10px] text-neutral-700 transition-opacity ${segment.id === selectedId ? "ring-2 ring-neutral-500 ring-offset-1" : ""} ${segment.visible === false ? "opacity-20" : "opacity-100"}`} style={{ background: segment.background ?? "#e5e5e5", left: `${segment.start / duration * 100}%`, width: `${(segment.end - segment.start) / duration * 100}%` }}>{segment.id === selectedId ? <Scissors className="mx-auto size-3" /> : ""}</button>)}</div>
+      <div role="slider" tabIndex={0} aria-label="時間軸播放位置" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={time} aria-valuetext={timestamp(time)} aria-orientation="horizontal" title={`拖曳播放位置 ${timestamp(time)}`} onPointerDown={startScrub} onPointerMove={moveScrub} onPointerUp={stopScrub} onKeyDown={event => { const step = event.shiftKey ? 10 : 1; const next = event.key === "ArrowRight" ? time + step : event.key === "ArrowLeft" ? time - step : event.key === "Home" ? 0 : event.key === "End" ? duration : null; if (next !== null) { event.preventDefault(); onPause(); onTimeChange(Math.max(0, Math.min(duration, next))) } }} className="absolute top-0 bottom-5 z-10 w-6 -translate-x-1/2 cursor-ew-resize touch-none rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-500" style={{ left: `${time / duration * 100}%` }}><span className="pointer-events-none absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-red-400" /><span className="pointer-events-none absolute -top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-sm bg-red-400 shadow-sm" /></div>
+      <div title="點擊或拖曳刻度以跳轉播放位置" onPointerDown={startScrub} onPointerMove={moveScrub} onPointerUp={stopScrub} className="mt-3 flex cursor-ew-resize touch-none justify-between py-2 font-mono text-[10px] text-muted-foreground">{[0, 0.25, 0.5, 0.75, 1].map(fraction => <span key={fraction}>{timestamp(duration * fraction)}</span>)}</div>
+    </div>
+  </CardContent>
+}

@@ -1,5 +1,41 @@
 # 每週變更
 
+## 2026-W45
+
+- 線上版未附本機 MP4 時，Comedy Highlight 播放器會改用指定 YouTube 嵌入影片；本機與建置輸出的 MP4 均排除版本控制。
+- Comedy Highlight 表演者篩選加入最多 10 張可點選的本機影片演出畫面縮圖，依 Clip 數排序；其餘表演者仍可透過下拉選單選取。
+- Comedy Highlight 主題 Filter 合併笑點類型與段子題材，依 Clip 出現次數排序並顯示前 10 個；題材為待複核的編輯候選。
+- Comedy Highlight 主題 Filter 依使用者選擇，改為六種笑點類型；片段依現有笑點手法暫分並保留待複核標示，沿用 Detail page 共用篩選樣式。
+- Comedy Highlight 的前 10 個標籤改套用 Detail page 共用 `ChapterTopicFilter` 樣式與多選行為，不再使用獨立繪製的標籤列。
+- Comedy Highlight 主題 Filter 新增按現有笑點手法關鍵詞統計的前 10 個標籤及 Clip 次數，可與表演者、Punchline 條件一起篩選。
+- Comedy Highlight 的主題 Filter 改為表演者／組合與笑話 Punchline 兩個條件；表演者依字幕自我介紹建立候選，未確認者保留待確認標示。
+- Comedy Highlight 本機預覽改用使用者提供的 480p MP4；原生播放器進度與時間軸同步，點選 Clip 可跳至該片段。影片檔保留本機、排除版本控制。
+- Comedy Highlight 改為 10 個連續大章節，保留 47 個 Punchline 候選 Clip；共用預覽元件新增指定 YouTube 影片的嵌入模式，點選時間軸或 Clip 可從對應時間載入。
+
+### 本週目標
+
+- 提出 AI Chatbot Settings 的手機即時預覽 Demo，先供本機檢視。
+
+### 已完成
+
+- Settings 新增手機開場與無結果示意，連動左側草稿設定，並可切換已發布的本機設定快照。
+- 推薦問題可帶入 Playground；保留既有測試與發布流程。
+- 詳細範圍及待確認事項記錄於 `features/chatbot-mobile-preview.md`。
+- 側欄新增 Examples 情境入口，分為 AI Chapter、AI Genre、AI Search 三個 Tab；卡片暫連至《孤独のグルメ SP》詳情頁。提案範圍見 `features/examples.md`。
+- Examples 八張卡片加上「預計使用技術」標籤；依使用者修正，僅使用參考截圖中的 video understanding 詞彙。
+- Comedy Highlight 新增 M-1 影片專屬內頁，沿用 Content detail 結構並展示四段有自動字幕時間點的候選片段；詳見 `features/examples.md`。
+- Actor Discovery 新增共用 Content detail 版型內頁；現有詳情頁與 Actor 頁使用同一個 `ContentDetailTemplate`，Actor 專屬內容標明待驗證。
+
+### 驗證
+
+- TypeScript／Vite build 與變更檔案 ESLint 通過；本機瀏覽器確認開場文案即時連動及無結果狀態切換。
+- Examples 已在本機瀏覽器檢查 Tab、卡片前往詳情頁與返回路徑。
+
+### 待確認與風險
+
+- 正式 C 端視覺及防劇透行為待確認；此版仍為 localStorage Demo。
+- AI Action & Skill Detection 題材及 AI Genre／AI Search 卡片內容待確認。
+
 ## 2026-W44
 
 ### 本週目標
@@ -206,3 +242,46 @@
 - 主 app 改用 ChatGPT/hi/add-video-flow 的完整 src：AddVideo 00:06、StreamAIDemo 00:10、AISearchMVP 00:02、AIChapter 00:17。
 - 完整方案另存 design/workspace-bundles/add-video-flow，保留其他 UI 方案。
 - 詳情页新連結保留 #detailpage；舊編號路徑可讀取。
+
+### 2026-11-03 | AI Chapter 共用頁內架構
+
+- 依 Content detail 畫面，把 AI Chapter 的標題與模式、Filter、左側預覽／時間軸／編輯區及右側清單整理為共用版型。
+- Actor Discovery 改套此架構；人物辨識與出場時間碼仍為待驗證資料，不顯示虛構結果。
+- TypeScript／Vite build 通過。瀏覽器重新整理驗證因自動審核服務錯誤未能完成。
+
+### 2026-11-03 | AI Chapter 右側章節層級
+
+- 依參考截圖，Content detail、Actor Discovery 與 Comedy Highlight 共用右側章節與片段面板的搜尋、收合及章節內 Clip 層級。
+- Comedy Highlight 的四個示範片段各放在待確認的表演章節；Actor Discovery 顯示尚無已驗證片段。
+- TypeScript／Vite build 與變更檔案 ESLint 通過；瀏覽器自動審核服務錯誤，未能完成畫面驗證。
+
+### 2026-11-03 | Comedy Highlight Filter 與預覽沿用 Detail page
+
+- Content detail 與 Comedy Highlight 共用 `ChapterTopicFilter`、`ChapterVideoPreview`，統一主題標籤及可調整大小的深色示意播放器樣式。
+- Comedy Highlight 保留 YouTube 原片時間點連結；示意播放不宣稱嵌入或播放原片。
+- TypeScript／Vite build 與變更檔案 ESLint 通過。
+
+### 2026-11-03 | Comedy Highlight 共用時間軸與候選內容
+
+- Content detail 與 Comedy Highlight 共用 `ChapterTimelineView`，包含模式切換、章節列、片段列、拖曳播放位置及刻度樣式。
+- 右側四段字幕候選補上暫定起訖、標題和摘要；僅在字幕有 `[笑い]` 的第二、四段標註待核對笑聲。完整笑話邊界及掌聲待確認。
+- TypeScript／Vite build 與變更檔案 ESLint 通過。瀏覽器畫面檢查被自動審核服務的模型設定錯誤攔下。
+
+### 2026-11-03 | Comedy Highlight 章節連續性與標題
+
+- 將原本四個相隔甚遠的暫定 Chapter 改為一個 00:00:00–01:46:29 全片 Chapter，四處候選保留為 Clip；正式演出分章待核對。
+- 四段候選標題改以對話中的反差、錯位及雙關命名；摘要保留字幕依據與待複核狀態。
+- TypeScript／Vite build 通過。
+
+### 2026-11-03 | Comedy Highlight 四個連續示意章節
+
+- 依使用者要求，Comedy Highlight 改成四個連續 Chapter，各含一個現有候選 Clip；無 Clip 的章節不顯示。
+- 章節分界暫取相鄰候選片段間距中點，覆蓋全片且不留空隙。此為 Demo 示意邊界，非已核對的表演分段。
+- TypeScript／Vite build 通過。
+
+### 2026-11-03 | Comedy Highlight 依完整字幕重整
+
+- 依使用者提供的日文自動產生 SRT，將多組漫才合集整理成 45 個連續段子章節與 47 個 Punchline 候選 Clip，取代先前四段示意資料。
+- 每個 Clip 補上暫定起訖、標題、摘要、笑點手法；`[笑い]`／`[拍手]` 僅依 SRT 註記顯示。播放器、時間軸及右側清單沿用 AI Chapter 共用元件。
+- 資料驗證：章節數 45、Clip 數 47、章節時間連續、全部 Clip 落在其章節內；TypeScript／Vite build 與 ESLint 通過。
+- 瀏覽器畫面檢查被自動審核服務的模型設定錯誤攔下；尚待人工檢視段子交界和笑點切點。

@@ -1,17 +1,11 @@
-import { useEffect, useRef, useState } from "react"
-import type { PointerEvent } from "react"
+import { useEffect, useState } from "react"
 import {
   ChevronDown,
   ChevronRight,
   Film,
-  Pause,
-  Play,
-  Search,
   Scissors,
   Sparkles,
   RotateCcw,
-  Check,
-  MoveDiagonal2,
   MonitorPlay,
   Pencil,
 } from "lucide-react"
@@ -20,6 +14,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import type { Video } from "@/mock-data/videos"
+import ChapterVideoPreview from "./ChapterVideoPreview"
+import ChapterTimelineView from "./ChapterTimelineView"
+import { AIChapterLayout, ChapterHeader, ChapterTopicFilter, ChapterColumns, ChapterListPanel } from "./AIChapterLayout"
 
 type Clip = {
   id: string
@@ -117,7 +114,6 @@ export default function AIChapter({ video }: { video: Video }) {
     "idle" | "configuring" | "generating" | "ready"
   >("idle")
   const [clipEditorOpen, setClipEditorOpen] = useState(false)
-  const showLegacyHighlightStatus = false
   const toggleTopic = (topic: string) =>
     setSelectedTopics((prev) =>
       prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
@@ -142,51 +138,6 @@ export default function AIChapter({ video }: { video: Video }) {
   const [query, setQuery] = useState("")
   const [collapsed, setCollapsed] = useState<string[]>([])
   const [time, setTime] = useState(0)
-  const previewRef = useRef<HTMLDivElement>(null)
-  const resizeOrigin = useRef<{
-    x: number
-    y: number
-    width: number
-    height: number
-  } | null>(null)
-  const [previewSize, setPreviewSize] = useState<{
-    width: number
-    height: number
-  } | null>(null)
-  const resizePreview = (width: number, height: number) => {
-    const available = previewRef.current?.parentElement?.clientWidth ?? width
-    setPreviewSize({
-      width: Math.max(Math.min(280, available), Math.min(available, width)),
-      height: Math.max(240, Math.min(900, height)),
-    })
-  }
-  const timelineRef = useRef<HTMLDivElement>(null)
-  const scrub = (event: PointerEvent<HTMLElement>) => {
-    const bounds = timelineRef.current?.getBoundingClientRect()
-    if (!bounds?.width) return
-    setTime(
-      Math.round(
-        Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width)) *
-          duration
-      )
-    )
-  }
-  const startScrub = (event: PointerEvent<HTMLElement>) => {
-    if (event.button !== 0) return
-    event.preventDefault()
-    event.currentTarget.setPointerCapture(event.pointerId)
-    setPlaying(false)
-    scrub(event)
-  }
-  const moveScrub = (event: PointerEvent<HTMLElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) scrub(event)
-  }
-  const stopScrub = (event: PointerEvent<HTMLElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      scrub(event)
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    }
-  }
   const [playing, setPlaying] = useState(false)
   const [notice, setNotice] = useState("")
   const [draft, setDraft] = useState<{ start: string; end: string } | null>(
@@ -387,8 +338,8 @@ export default function AIChapter({ video }: { video: Video }) {
     setNotice("時間已套用，相鄰片段已同步銜接。")
   }
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <AIChapterLayout>
+      <ChapterHeader>
         <div>
           <h2 className="flex items-center gap-2 text-xl font-semibold">
             <Sparkles className="size-5" />
@@ -448,384 +399,12 @@ export default function AIChapter({ video }: { video: Video }) {
             </div>
           </div>
         </div>
-      </div>
-      <Card className="py-4 shadow-none">
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">主題 Filter</span>
-            <span className="text-xs text-muted-foreground">
-              {highlightedClips.length} / {clips.length} Clips
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant={!selectedTopics.length ? "default" : "outline"}
-              aria-pressed={!selectedTopics.length}
-              className="rounded-full"
-              onClick={() => setSelectedTopics([])}
-            >
-              全部主題
-            </Button>
-            {topics.map((t) => (
-              <Button
-                key={t}
-                size="sm"
-                variant="outline"
-                aria-pressed={selectedTopics.includes(t)}
-                style={topicStyle(t)}
-                className="rounded-full"
-                onClick={() => toggleTopic(t)}
-              >
-                {selectedTopics.includes(t) && <Check className="size-3" />}
-                {t}
-                <span className="opacity-60">
-                  {clips.filter((c) => c.tags.includes(t)).length}
-                </span>
-              </Button>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            可多選 ·{" "}
-            {selectedTopics.length
-              ? `已選 ${selectedTopics.length} 個主題，顯示符合任一主題的片段`
-              : "顯示全部主題"}
-            。時間軸柔和漸層表示片段同時符合多個主題；點擊「全部主題」可清除選取。
-          </p>
-          {showLegacyHighlightStatus && highlightStatus !== "idle" && (
-            <Card className="border-neutral-300 bg-neutral-50 py-3 shadow-none">
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold">Highlight 生成設定</p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedTopics.join("、")} · {highlightedClips.length}{" "}
-                      Clips · 預估 {timestamp(highlightLength)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      highlightStatus === "ready" ? "default" : "secondary"
-                    }
-                  >
-                    {highlightStatus === "configuring"
-                      ? "待確認"
-                      : highlightStatus === "generating"
-                        ? "生成中"
-                        : "已完成"}
-                  </Badge>
-                </div>
-                {highlightStatus === "configuring" && (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setHighlightStatus("generating")
-                        window.setTimeout(
-                          () => setHighlightStatus("ready"),
-                          1200
-                        )
-                      }}
-                    >
-                      開始生成
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setHighlightStatus("idle")}
-                    >
-                      取消
-                    </Button>
-                  </div>
-                )}
-                {highlightStatus === "generating" && (
-                  <p className="text-xs text-muted-foreground">
-                    正在依時間順序整理 Clip、套用轉場並建立 Highlight…
-                  </p>
-                )}
-                {highlightStatus === "ready" && (
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      Mock Highlight 已建立，可在預覽模式查看剪輯順序。
-                    </p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setHighlightStatus("idle")}
-                    >
-                      重新設定
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </CardContent>
-      </Card>
-      <div className="grid items-start gap-4 min-[1200px]:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="min-w-0 space-y-4">
+      </ChapterHeader>
+      <ChapterTopicFilter total={clips.length} visible={highlightedClips.length} topics={topics.map(name => ({ name, count: clips.filter(clip => clip.tags.includes(name)).length, color: topicColors[name] }))} selected={selectedTopics} onToggle={toggleTopic} onClear={() => setSelectedTopics([])} />
+      <ChapterColumns left={<>
           <Card className="gap-0 overflow-hidden py-0 shadow-none">
-            <div className="flex items-center justify-between gap-2 border-b px-4 py-2 text-xs text-muted-foreground">
-              <span>拖曳預覽右下角調整大小</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPreviewSize(null)}
-              >
-                <RotateCcw className="size-3" />
-                重設大小
-              </Button>
-            </div>
-            <div
-              ref={previewRef}
-              style={
-                previewSize
-                  ? {
-                      width: previewSize.width,
-                      height: previewSize.height,
-                      maxWidth: "100%",
-                    }
-                  : undefined
-              }
-              className="relative mx-auto flex aspect-video min-h-60 w-full flex-col justify-between overflow-hidden bg-neutral-900 p-5 pb-8 text-white"
-            >
-              <div className="flex justify-between text-xs">
-                <Badge className="bg-white/15 text-white">
-                  <Film className="size-3" />
-                  Video 示意預覽
-                </Badge>
-                <span>
-                  {mode === "chapters" ? "CHAPTER" : "SCENE"} {chapterIndex + 1}
-                </span>
-              </div>
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[.06]">
-                <Film className="size-64" />
-              </div>
-              <div className="relative text-center">
-                <p className="text-xs tracking-[.25em] text-neutral-400">
-                  {video.title}
-                </p>
-                <h3 className="mt-3 text-2xl font-semibold">{clip.name}</h3>
-                <p className="mt-2 text-xs text-neutral-400">
-                  示意播放 · 未連接實際影片
-                </p>
-              </div>
-              <div className="relative space-y-3">
-                <input
-                  aria-label="影片播放進度"
-                  type="range"
-                  min="0"
-                  max={duration}
-                  value={time}
-                  onChange={(e) => setTime(Number(e.target.value))}
-                  className="w-full accent-white"
-                />
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-white hover:bg-white/15 hover:text-white"
-                    aria-label={
-                      playing && time < duration
-                        ? "暫停示意播放"
-                        : "開始示意播放"
-                    }
-                    onClick={togglePlayback}
-                  >
-                    {playing && time < duration ? <Pause /> : <Play />}
-                  </Button>
-                  <span className="font-mono text-xs">
-                    {timestamp(time)} / {video.duration}
-                  </span>
-                  <span className="ml-auto text-xs text-neutral-400">
-                    MOCK PREVIEW
-                  </span>
-                </div>
-              </div>
-              <button
-                aria-label="拖曳調整 Video 預覽大小"
-                title="拖曳調整大小；方向鍵可微調"
-                className="absolute right-0 bottom-0 grid size-8 cursor-nwse-resize touch-none place-items-center rounded-tl bg-white/15 text-white hover:bg-white/30 focus-visible:outline-2 focus-visible:outline-white"
-                onPointerDown={(event) => {
-                  if (event.button !== 0) return
-                  event.preventDefault()
-                  const rect = previewRef.current!.getBoundingClientRect()
-                  resizeOrigin.current = {
-                    x: event.clientX,
-                    y: event.clientY,
-                    width: rect.width,
-                    height: rect.height,
-                  }
-                  event.currentTarget.setPointerCapture(event.pointerId)
-                }}
-                onPointerMove={(event) => {
-                  const origin = resizeOrigin.current
-                  if (
-                    origin &&
-                    event.currentTarget.hasPointerCapture(event.pointerId)
-                  )
-                    resizePreview(
-                      origin.width + (event.clientX - origin.x) * 2,
-                      origin.height + event.clientY - origin.y
-                    )
-                }}
-                onPointerUp={(event) => {
-                  resizeOrigin.current = null
-                  if (event.currentTarget.hasPointerCapture(event.pointerId))
-                    event.currentTarget.releasePointerCapture(event.pointerId)
-                }}
-                onPointerCancel={() => {
-                  resizeOrigin.current = null
-                }}
-                onKeyDown={(event) => {
-                  if (
-                    ![
-                      "ArrowLeft",
-                      "ArrowRight",
-                      "ArrowUp",
-                      "ArrowDown",
-                    ].includes(event.key)
-                  )
-                    return
-                  event.preventDefault()
-                  const rect = previewRef.current!.getBoundingClientRect()
-                  resizePreview(
-                    rect.width +
-                      (event.key === "ArrowRight"
-                        ? 20
-                        : event.key === "ArrowLeft"
-                          ? -20
-                          : 0),
-                    rect.height +
-                      (event.key === "ArrowDown"
-                        ? 20
-                        : event.key === "ArrowUp"
-                          ? -20
-                          : 0)
-                  )
-                }}
-              >
-                <MoveDiagonal2 className="size-4" />
-              </button>
-            </div>
-            <CardContent className="space-y-4 p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold">時間軸視圖</h3>
-                <div className="flex gap-1 rounded-lg bg-muted p-1">
-                  {(
-                    [
-                      ["chapters", "章節模式"],
-                      ["scenes", "場景模式"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <Button
-                      key={value}
-                      size="sm"
-                      variant={mode === value ? "default" : "ghost"}
-                      onClick={() => {
-                        setMode(value)
-                        setDraft(null)
-                      }}
-                    >
-                      {label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {mode === "chapters"
-                  ? "章節連續涵蓋完整影片；調整片段邊界會同步銜接相鄰片段。"
-                  : "場景為不連續的 AI 精選時段；點擊主題可快速突出相符場景。"}
-              </p>
-              <div ref={timelineRef} className="relative pt-1 pb-6">
-                <div className="flex h-10 overflow-hidden rounded-md">
-                  {chapters.map((ch, i) => (
-                    <button
-                      key={ch.id}
-                      title={`${ch.name} ${timestamp(ch.clips[0].start)} – ${timestamp(ch.clips.at(-1)!.end)}`}
-                      onClick={() => choose(ch.clips[0])}
-                      className={`overflow-hidden border-r border-white/70 px-1 text-xs ${i === chapterIndex ? "bg-primary text-white" : "bg-neutral-200 text-neutral-700"}`}
-                      style={{
-                        width: `${((ch.clips.at(-1)!.end - ch.clips[0].start) / duration) * 100}%`,
-                      }}
-                    >
-                      {i + 1}
-                      <span className="ml-1 hidden 2xl:inline">{ch.name}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="relative mt-2 h-8 rounded bg-neutral-100">
-                  {(mode === "chapters" ? clips : scenes).map((c) => (
-                    <button
-                      key={c.id}
-                      aria-label={`${mode === "chapters" ? "Clip" : "場景"} ${c.name} ${timestamp(c.start)} 至 ${timestamp(c.end)}`}
-                      title={`${c.name} · ${c.tags.join(" / ")}`}
-                      onClick={() => choose(c)}
-                      className={`absolute top-0 h-8 overflow-hidden rounded-sm border border-white text-[10px] text-neutral-700 transition-opacity ${c.id === selected ? "ring-2 ring-neutral-500 ring-offset-1" : ""} ${matches(c) ? "opacity-100" : "opacity-20"}`}
-                      style={{
-                        background: timelineColor(c.tags),
-                        left: `${(c.start / duration) * 100}%`,
-                        width: `${((c.end - c.start) / duration) * 100}%`,
-                      }}
-                    >
-                      {c.id === selected ? (
-                        <Scissors className="mx-auto size-3" />
-                      ) : (
-                        ""
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <div
-                  role="slider"
-                  tabIndex={0}
-                  aria-label="時間軸播放位置"
-                  aria-valuemin={0}
-                  aria-valuemax={duration}
-                  aria-valuenow={time}
-                  aria-valuetext={timestamp(time)}
-                  aria-orientation="horizontal"
-                  title={`拖曳播放位置 ${timestamp(time)}`}
-                  onPointerDown={startScrub}
-                  onPointerMove={moveScrub}
-                  onPointerUp={stopScrub}
-                  onKeyDown={(event) => {
-                    const step = event.shiftKey ? 10 : 1
-                    const next =
-                      event.key === "ArrowRight"
-                        ? time + step
-                        : event.key === "ArrowLeft"
-                          ? time - step
-                          : event.key === "Home"
-                            ? 0
-                            : event.key === "End"
-                              ? duration
-                              : null
-                    if (next !== null) {
-                      event.preventDefault()
-                      setPlaying(false)
-                      setTime(Math.max(0, Math.min(duration, next)))
-                    }
-                  }}
-                  className="absolute top-0 bottom-5 z-10 w-6 -translate-x-1/2 cursor-ew-resize touch-none rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-500"
-                  style={{ left: `${(time / duration) * 100}%` }}
-                >
-                  <span className="pointer-events-none absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-red-400" />
-                  <span className="pointer-events-none absolute -top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-sm bg-red-400 shadow-sm" />
-                </div>
-                <div
-                  title="點擊或拖曳刻度以跳轉播放位置"
-                  onPointerDown={startScrub}
-                  onPointerMove={moveScrub}
-                  onPointerUp={stopScrub}
-                  className="mt-3 flex cursor-ew-resize touch-none justify-between py-2 font-mono text-[10px] text-muted-foreground"
-                >
-                  {[0, 0.25, 0.5, 0.75, 1].map((n) => (
-                    <span key={n}>{timestamp(duration * n)}</span>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
+            <ChapterVideoPreview videoTitle={video.title} clipTitle={clip.name} duration={duration} time={time} onTimeChange={setTime} playing={playing} onTogglePlayback={togglePlayback} sectionLabel={`${mode === "chapters" ? "CHAPTER" : "SCENE"} ${chapterIndex + 1}`} />
+            <ChapterTimelineView duration={duration} time={time} onTimeChange={setTime} onPause={() => setPlaying(false)} mode={mode} onModeChange={value => { setMode(value); setDraft(null) }} chapters={chapters.map(chapter => ({ id: chapter.id, name: chapter.name, start: chapter.clips[0].start, end: chapter.clips.at(-1)!.end, firstClipId: chapter.clips[0].id, clipIds: chapter.clips.map(item => item.id) }))} clips={clips.map(item => ({ ...item, background: timelineColor(item.tags), visible: matches(item) }))} scenes={scenes.map(item => ({ ...item, background: timelineColor(item.tags), visible: matches(item) }))} selectedId={selected} onSelect={id => { const item = clips.find(clip => clip.id === id); if (item) choose(item) }} />
           </Card>
           <Card className="border-neutral-300 bg-neutral-50 py-4 shadow-none">
             <CardContent className="space-y-3">
@@ -1127,38 +706,7 @@ export default function AIChapter({ video }: { video: Video }) {
               </div>
             </CardContent>
           </Card>
-        </div>
-        <Card className="gap-0 overflow-hidden py-0 shadow-none">
-          <div className="space-y-3 border-b p-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">章節與片段</h3>
-              <Badge variant="secondary">5 Chapters</Badge>
-            </div>
-            <div className="relative">
-              <Search className="absolute top-3 left-3 size-4 text-muted-foreground" />
-              <Input
-                aria-label="搜尋章節片段標題或標籤"
-                placeholder="搜尋片段、標籤…"
-                className="pl-9"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                setCollapsed(
-                  collapsed.length === chapters.length
-                    ? []
-                    : chapters.map((c) => c.id)
-                )
-              }
-            >
-              {collapsed.length === chapters.length ? "全部展開" : "全部收合"}
-            </Button>
-          </div>
-          <div className="max-h-[920px] overflow-y-auto">
+        </>} right={<ChapterListPanel count="5 Chapters" query={query} onQueryChange={setQuery} collapsed={collapsed.length === chapters.length} onToggle={() => setCollapsed(collapsed.length === chapters.length ? [] : chapters.map(chapter => chapter.id))}>
             {chapters.map((ch, i) => {
               const visible = ch.clips.filter(matches)
               return (
@@ -1267,9 +815,7 @@ export default function AIChapter({ video }: { video: Video }) {
                 </section>
               )
             })}
-          </div>
-        </Card>
-      </div>
-    </div>
+        </ChapterListPanel>} />
+    </AIChapterLayout>
   )
 }

@@ -94,3 +94,55 @@
 - 表格、容器、狀態、下拉、輸入與操作使用專案既有 shadcn Table、Card、Badge、Select、Input、Button；補 Checkbox、Textarea、Label 元件。
 - 多 Demo 資料沿用既有 localStorage keys。
 - 驗證：TypeScript／Vite build、變更檔案 ESLint、17 項搜尋與真實 shadcn 元件伺服器渲染檢查。尚未完成瀏覽器點擊檢查。
+
+### 2026-11-03 | AI Chapter 作為情境共用架構
+
+- Content detail 與 Actor Discovery 的 AI Chapter 內容區共用 `AIChapterLayout` 元件及欄位配置；後續情境頁沿用此架構，再替換各情境的 Filter、時間軸資料及右側清單。
+- 人物出場辨識與時間碼尚未有可核對資料，Actor Discovery 先顯示空狀態與待驗證人物候選。
+
+### 2026-11-03 | AI Chapter 右側清單共用
+
+- `ChapterListPanel` 統一章節／片段清單的標題、搜尋、收合及捲動容器。各情境頁提供自己的章節和 Clip 資料。
+- 尚未核對的 Comedy Highlight 表演章節與 Actor Discovery 出場章節均標「待確認」，不視為實際分析結果。
+
+### 2026-11-03 | AI Chapter 時間軸共用
+
+- Content detail 與 Comedy Highlight 共用 `ChapterTimelineView` 的外觀與播放定位操作；各頁提供自己的章節／片段資料。
+- Comedy Highlight 只在有字幕候選的時段顯示章節及片段，不以示範資料推定整支影片的章節切分。
+
+### 2026-11-03 | Comedy Highlight 暫不推定演出邊界
+
+- 現有四段字幕候選無法證明各組演出的完整起訖，因此以一個全片 Chapter 保持時間連續，將四段保留為 Clip；取得可核對的演出邊界後再拆分多個連續 Chapter。
+
+### 2026-11-03 | Comedy Highlight 四章示意邊界
+
+- 依使用者指定展示四個大章節，時間軸完整且連續。可核對資料僅有四段候選 Clip，故三個章節分界暫取候選片段間距中點（00:03:12、00:32:50、01:15:26），於 UI 標為示意邊界；取得正式表演時間後須替換。
+
+### 2026-11-03 | Comedy Highlight 改依每組段子分章
+
+- 使用者確認依每組完整段子拆章節，取代先前四個大章節示意。字幕中的登場與收尾用於推定章節邊界；Punchline Clip 保留較短的鋪陳與笑點時段。
+- 日文自動字幕資料衍生為本機 Demo 內容，不納入原始 SRT。所有字幕標記、標題與切點須以原片複核後才可用於正式內容。
+
+### 2026-11-03 | Comedy Highlight 改為十個大章節並嵌入原片
+
+- 依使用者最新指示，將先前的 45 個段子候選合併為 10 個連續大章節，保留 47 個 Punchline 候選 Clip；章節邊界仍對齊段子交接點。
+- 共用 `ChapterVideoPreview` 加入選用的 YouTube 嵌入模式，Comedy 頁使用指定影片；其他頁維持原有示意模式。
+- YouTube 播放進度未與介面時間軸同步；章節與 Clip 點選會重新載入所選時間點，另保留原片連結。
+
+### 2026-11-03 | Comedy Highlight 本機改用提供的 MP4
+
+- 使用者提供 480p MP4 後，本機預覽改為 HTML 影片播放器，播放進度與時間軸同步；YouTube 連結保留備援。
+- 影片約 401 MB，僅放在本機靜態檔目錄並排除版本控制；其他環境若要預覽原片，須另行提供媒體檔。
+
+### 2026-11-03 | Comedy Highlight 以表演者與 Punchline 篩選
+
+- 主題 Filter 改為表演者／組合及笑話 Punchline，兩條件交集顯示結果。表演者名稱來自日文自動字幕，屬待複核候選；無法辨識者以組別標示待確認。
+
+### 2026-11-03 | Comedy Highlight 主題改依笑點類型
+
+- 使用者選擇「依笑點類型找」，取代前 10 個高頻關鍵詞標籤。主題 Filter 使用 Detail page 共用 `ChapterTopicFilter`，呈現六種觀眾可理解的笑點類型。
+- 類型依現有字幕候選的笑點手法暫分，尚待對照影片複核；表演者與 Punchline 篩選保留。
+
+### 2026-11-03 | Comedy Highlight 合併笑點類型與段子題材
+
+- 依使用者最新指示，主題 Filter 合併兩類標籤、按符合的 Clip 數排序並最多顯示 10 個；同數量採固定順序。題材依既有摘要暫分，待影片核對。

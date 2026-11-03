@@ -2,6 +2,9 @@ import * as React from "react"
 import AddVideo from "./AddVideo"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
+import ExamplesPage from "./ExamplesPage"
+import ComedyHighlightDetail from "./ComedyHighlightDetail"
+import ActorDiscoveryContent from "./ActorDiscoveryContent"
 import { readAssistantRegistry } from "./assistant-registry"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -75,13 +78,16 @@ import {
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 
-type Page = "home" | "video" | "library" | "search" | "detail" | "add-video"
+type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video"
 const labels: Record<Page, string> = {
   "add-video": "Add Content",
   home: "Home",
   video: "Content",
   library: "Library",
   search: "AI Chatbot",
+  examples: "Examples",
+  actor: "Actor Discovery",
+  comedy: "Comedy Highlight",
   detail: "AI Metadata",
 }
 function DiscoveryIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -97,6 +103,7 @@ const nav = [
   { page: "video" as const, icon: Clapperboard },
   { page: "library" as const, icon: LibraryBig },
   { page: "search" as const, icon: DiscoveryIcon },
+  { page: "examples" as const, icon: Sparkles },
 ]
 const discoverySections = [
   { id: "list", label: "All Chatbot" },
@@ -128,6 +135,9 @@ function pageFromHash(): Page {
   const hash = window.location.hash.slice(1)
   if (hash === "add-video") return "add-video"
   if (hash === "search" || hash.startsWith("search/")) return "search"
+  if (hash === "examples") return "examples"
+  if (hash === "example/actor-discovery") return "actor"
+  if (hash === "example/comedy-highlight") return "comedy"
   if (hash.startsWith("detail")) return "detail"
   if (
     hash === "home" ||
@@ -309,8 +319,8 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
   )
 }
 
-function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
-  const [activeTab, setActiveTab] = React.useState("AI Metadata")
+function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTab = "AI Metadata", chapterContent }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode }) {
+  const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const tabs = ["AI Metadata", "AI Chapter"]
   return (
     <div>
@@ -319,7 +329,7 @@ function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label="Back to Library"
+            aria-label={`Back to ${backLabel}`}
             onClick={onBack}
           >
             <ArrowLeft />
@@ -331,7 +341,7 @@ function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
                   className="text-muted-foreground hover:text-foreground"
                   onClick={onBack}
                 >
-                  Content
+                  {backLabel}
                 </button>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -557,7 +567,7 @@ function DetailPage({ video, onBack }: { video: Video; onBack: () => void }) {
           </aside>
         </div>
       ) : (
-        <AIChapter key={video.id} video={video} />
+        chapterContent ?? <AIChapter key={video.id} video={video} />
       )}
     </div>
   )
@@ -570,6 +580,7 @@ function Workspace() {
   const [assistantSearch, setAssistantSearch] = React.useState("")
   const [lastAssistant, setLastAssistant] = React.useState(() => demoFromHash() || readAssistantRegistry().find(a => a.status !== "Archived")?.id || "")
   const [discoverySection, setDiscoverySection] = React.useState(sectionFromHash)
+  const [examplesTab, setExamplesTab] = React.useState("chapter")
   const [query, setQuery] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState("all")
   const [statusFilter, setStatusFilter] = React.useState("all")
@@ -578,7 +589,10 @@ function Workspace() {
     const id = window.location.hash.slice(1).split("/")[1]
     return videos.find((video) => video.id === id) ?? videos[0]
   })
+  const [detailOrigin, setDetailOrigin] = React.useState<"video" | "examples">(() => window.location.hash.endsWith("/examples") ? "examples" : "video")
   const { isMobile, setOpenMobile } = useSidebar()
+
+  React.useEffect(() => { window.scrollTo(0, 0) }, [page])
 
   React.useEffect(() => {
     const sync = () => { const items = readAssistantRegistry(); setAssistantRegistry(items); setLastAssistant(previous => items.some(item => item.id === previous && item.status !== "Archived") ? previous : items.find(item => item.status !== "Archived")?.id || "") }
@@ -595,6 +609,7 @@ function Workspace() {
       if (next === "detail") {
         const id = window.location.hash.slice(1).split("/")[1]
         setSelected(videos.find((video) => video.id === id) ?? videos[0])
+        setDetailOrigin(window.location.hash.endsWith("/examples") ? "examples" : "video")
       }
     }
     window.addEventListener("popstate", onHashChange)
@@ -631,11 +646,27 @@ function Workspace() {
     if (isMobile) setOpenMobile(false)
   }
 
-  const openDetail = (video: Video) => {
+  const openDetail = (video: Video, origin: "video" | "examples" = "video") => {
     setSelected(video)
+    setDetailOrigin(origin)
     setPage("detail")
-    window.history.pushState(null, "", `#detailpage`)
+    window.history.pushState(null, "", origin === "examples" ? `#detail/${video.id}/examples` : "#detailpage")
     if (isMobile) setOpenMobile(false)
+  }
+  const openExample = (exampleId: string) => {
+    if (exampleId === "chapter/01") {
+      setPage("actor")
+      window.history.pushState(null, "", "#example/actor-discovery")
+      if (isMobile) setOpenMobile(false)
+      return
+    }
+    if (exampleId === "chapter/02") {
+      setPage("comedy")
+      window.history.pushState(null, "", "#example/comedy-highlight")
+      if (isMobile) setOpenMobile(false)
+      return
+    }
+    openDetail(videos[0], "examples")
   }
 
   const filtered = videos.filter((video) => {
@@ -675,7 +706,7 @@ function Workspace() {
               {nav.map(({ page: item, icon: Icon }) => (
                 <SidebarMenuItem key={item}>
                   <SidebarMenuButton
-                    isActive={page === item || (page === "add-video" && item === "video")}
+                    isActive={page === item || (page === "add-video" && item === "video") || ((page === "actor" || page === "comedy") && item === "examples")}
                     onClick={() => item === "search" ? chooseDemo(null) : navigate(item)}
                     aria-current={page === item ? "page" : undefined}
                     className="h-10 rounded-lg px-3"
@@ -709,10 +740,11 @@ function Workspace() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {page === "detail" ? "Content" : labels[page]}
+                    {page === "detail" ? "Content" : (page === "actor" || page === "comedy") ? "Examples" : labels[page]}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
                 {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
+                {(page === "actor" || page === "comedy") && <><BreadcrumbSeparator /><BreadcrumbItem><span>{labels[page]}</span></BreadcrumbItem></>}
                 {page === "video" && (
                   <>
                     <BreadcrumbSeparator />
@@ -733,7 +765,11 @@ function Workspace() {
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
           {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "detail" && selected ? (
-            <DetailPage video={selected} onBack={() => navigate("video")} />
+            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Content"} />
+          ) : page === "actor" ? (
+            <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />
+          ) : page === "comedy" ? (
+            <ComedyHighlightDetail onBack={() => navigate("examples")} />
           ) : page === "video" ? (
             <>
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -894,6 +930,8 @@ function Workspace() {
                 )}
               </Card>
             </>
+          ) : page === "examples" ? (
+            <ExamplesPage tab={examplesTab} onTabChange={setExamplesTab} onOpenDetail={openExample} />
           ) : page === "search" ? (
             <AISearchMVP key={activeDemo || "demo-list"} section={discoverySection} demoId={activeDemo} onDemoChange={chooseDemo} onSectionChange={navigateDiscovery} />
           ) : (

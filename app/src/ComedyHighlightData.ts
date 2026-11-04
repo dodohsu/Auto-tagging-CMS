@@ -74,8 +74,8 @@ const actThemes: Record<string, number[]> = {
   戀愛曖昧: [2, 6, 7, 15, 16, 33, 35, 41],
   職場日常: [1, 14, 19, 22, 27, 30, 32, 34, 37],
   家庭與校園: [4, 19, 21, 25, 31, 42, 45],
-  美食與餐廳: [13, 14, 20, 24, 30, 31, 34, 36, 43],
-  動漫與流行文化: [1, 15, 17, 28, 29, 35, 37],
+  美食與餐廳: [13, 14, 17, 20, 24, 30, 31, 34, 36, 43],
+  動漫與流行文化: [1, 6, 19, 28, 29, 35],
   節慶活動: [2, 39, 44],
 }
 
@@ -97,7 +97,7 @@ const actClips = drafts.map(([, candidates], index) => candidates.map(([start, e
     title,
     summary,
     cue,
-    tags: [topicFromCue(cue), ...Object.entries(actThemes).filter(([, acts]) => acts.includes(index + 1)).map(([theme]) => theme)],
+    tags: [(index + 1 === 27 ? "語言雙關" : topicFromCue(cue)), ...Object.entries(actThemes).filter(([, acts]) => acts.includes(index + 1)).map(([theme]) => theme)],
     laughter: laughterTimes.some(time => start <= time && time <= end),
     applause: applauseTimes.some(time => start <= time && time <= end),
   })))

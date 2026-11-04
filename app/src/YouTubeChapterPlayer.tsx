@@ -10,6 +10,8 @@ type YouTubePlayer = {
 type YouTubeApi = {
   Player: new (element: HTMLElement, options: {
     videoId: string
+    width?: string
+    height?: string
     host?: string
     playerVars?: Record<string, string | number>
     events: { onReady: (event: PlayerEvent) => void; onStateChange: (event: PlayerEvent) => void; onError: () => void }
@@ -63,8 +65,13 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
     let poll: number | undefined
     void loadYouTubeApi().then(YT => {
       if (cancelled || !containerRef.current) return
-      playerRef.current = new YT.Player(containerRef.current, {
+      // The API replaces its target with an iframe; keep React's container intact.
+      const target = document.createElement("div")
+      containerRef.current.replaceChildren(target)
+      playerRef.current = new YT.Player(target, {
         videoId,
+        width: "100%",
+        height: "100%",
         host: "https://www.youtube-nocookie.com",
         playerVars: { controls: 1, playsinline: 1, rel: 0, start: Math.floor(timeRef.current) },
         events: {
@@ -105,6 +112,8 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
     if (Math.abs(player.getCurrentTime() - time) > 0.5) player.seekTo(time, true)
   }, [time])
 
-  if (error) return <div className="absolute inset-0 grid place-items-center bg-neutral-950 p-4 text-center text-sm text-white"><a className="underline" href={`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${Math.floor(time)}s`} target="_blank" rel="noreferrer">播放器無法載入 · 在 YouTube 開啟影片</a></div>
-  return <div ref={containerRef} className="absolute inset-0 bg-neutral-950" title={title} />
+  return <div className="absolute inset-0 bg-neutral-950">
+    <div ref={containerRef} className="absolute inset-0 [&>iframe]:block [&>iframe]:h-full [&>iframe]:w-full" title={title} />
+    {error && <div className="absolute inset-0 grid place-items-center bg-neutral-950 p-4 text-center text-sm text-white"><a className="underline" href={`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${Math.floor(time)}s`} target="_blank" rel="noreferrer">播放器無法載入 · 在 YouTube 開啟影片</a></div>}
+  </div>
 }

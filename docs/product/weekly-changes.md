@@ -1,3 +1,9 @@
+### 2026-11-04 | YouTube 備援播放器排版修正
+
+- 修正 YouTube API 預設 640 × 360 iframe 裁切問題，播放器寬高跟隨預覽容器。
+- 保留 React 容器，載入失敗提示使用獨立覆蓋層。
+- TypeScript／Vite build、變更檔案 ESLint 及不含 MP4 的部署模擬尺寸檢查通過。
+
 # 每週變更
 
 ## 2026-W45

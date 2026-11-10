@@ -776,7 +776,7 @@ function Workspace() {
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
+          {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
             <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />
@@ -796,7 +796,7 @@ function Workspace() {
                 </div>
                 <Button onClick={() => navigate("add-video")}>
                   <Plus />
-                  Add Content
+                  Add Assets
                 </Button>
               </div>
               <Card className="gap-0 overflow-hidden py-0 shadow-sm">

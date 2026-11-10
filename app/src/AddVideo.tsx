@@ -80,13 +80,13 @@ function Analysis() {
     </Card>
   </div>
 }
-export default function AddVideo({ onBack, title = "Add Content" }: { onBack: () => void; title?: string }) {
+export default function AddVideo({ onBack, title = "Add Content", initialPickerOpen = false }: { onBack: () => void; title?: string; initialPickerOpen?: boolean }) {
   const [items, setItems] = useState<Item[]>([])
   const [error, setError] = useState("")
   const [language, setLanguage] = useState("auto")
   const [dragging, setDragging] = useState(false)
   const [review, setReview] = useState(false)
-  const [pickerOpen, setPickerOpen] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(initialPickerOpen)
   const [uploadSource, setUploadSource] = useState<"local" | "assets">("local")
   const [selectedAsset, setSelectedAsset] = useState("")
   const input = useRef<HTMLInputElement>(null)

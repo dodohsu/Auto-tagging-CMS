@@ -1,9 +1,3 @@
-### 2026-11-04 | YouTube 備援播放器排版修正
-
-- 修正 YouTube API 預設 640 × 360 iframe 裁切問題，播放器寬高跟隨預覽容器。
-- 保留 React 容器，載入失敗提示使用獨立覆蓋層。
-- TypeScript／Vite build、變更檔案 ESLint 及不含 MP4 的部署模擬尺寸檢查通過。
-
 # 每週變更
 
 ## 2026-W45
@@ -293,10 +287,33 @@
 - 每個 Clip 補上暫定起訖、標題、摘要、笑點手法；`[笑い]`／`[拍手]` 僅依 SRT 註記顯示。播放器、時間軸及右側清單沿用 AI Chapter 共用元件。
 - 資料驗證：章節數 45、Clip 數 47、章節時間連續、全部 Clip 落在其章節內；TypeScript／Vite build 與 ESLint 通過。
 - 瀏覽器畫面檢查被自動審核服務的模型設定錯誤攔下；尚待人工檢視段子交界和笑點切點。
-### 2026-11-04 | Comedy 主題對應與 Clip 標籤更新
+### 2026-11-04 | YouTube 備援播放器排版修正
 
-- 校正寶可夢、戰隊、中華餐館及 Bolt 字義笑點分類，移除摘要缺乏依據的動漫標籤。
-- 主題計數隨表演者、Punchline 與搜尋更新；搜尋包含主題文字，篩選排除目前片段時切換至符合的 Clip，無結果時隱藏播放器與摘要。
-- Clip 主題套用 Detail page 的淡色底、細框、小圓角樣式；移除表演者、笑點手法、字幕反應及待複核 Badge。
-- TypeScript、變更檔案 ESLint 與資料映射檢查通過；正式建置及瀏覽器驗證被自動核准服務的模型設定錯誤阻擋，待 GitHub CI 驗證。
+- GitHub Pages 缺少本機 MP4 時改用 YouTube；API 原本產生固定 640 × 360 iframe，造成預覽容器裁切。
+- 改為穩定的外層容器及寬高 100% iframe；載入失敗提示使用獨立覆蓋層，避免殘留播放器擠壓提示排版。
+- TypeScript／Vite 正式建置及變更檔案 ESLint 通過；使用不含 MP4 的正式建置模擬部署檢查尺寸。
 
+### 2026-11-04 | Comedy 主題與 Clip 對應修正
+
+- 補上寶可夢、戰隊題材；移除缺乏摘要依據的動漫分類；中華餐館歸入餐廳題材，Bolt 字義笑點歸入語言雙關。
+- Clip 清單與詳情直接顯示主題標籤；搜尋納入主題文字。
+- 主題計數隨表演者、Punchline 與搜尋更新；原 Clip 被排除時定位第一個符合的 Clip，無結果時隱藏播放器與摘要。
+- TypeScript、ESLint 與資料映射檢查通過；正式 Vite 建置及瀏覽器驗證被自動核准服務的模型設定錯誤阻擋，尚待重試。
+
+### 2026-11-04 | Comedy Clip 主題標籤樣式
+
+- 主題標籤套用 Detail page Clip 清單的細框、小圓角、10px 字級與淡色底；選取中的主題使用對應較深底色。
+- 同步更新 Clip 清單及目前片段摘要的主題標籤。
+
+### 2026-11-04 | Comedy Clip 標籤精簡
+
+- Clip 清單與摘要移除表演者、笑點手法、字幕反應及待複核 Badge，保留 Detail page 樣式的主題標籤；原有篩選資料與複核說明保留。
+
+
+## 2026-11-10
+- Add Content 依框架圖調整：字幕拆分輸入與輸出語言，AI Analysis 整合分類、Prompt、標籤與新增分類操作，沿用 shadcn/ui。此為本機 Demo。
+
+## 2026-11-10：Template Setting
+- 左側選單新增 Template Setting，可建立 Template、編輯預設 Tag Categories 與 Tags，按 Save 儲存至本機瀏覽器，Add Content 讀取相同設定。
+- 左側選單隱藏 Home、Library、AI Chatbot。
+- Examples 頁移除原本 AI Chapter／AI Genre／AI Search Tab，改為 Concert 與 Comedy Show 兩個情境卡片；Comedy Show 保留既有示意頁入口。

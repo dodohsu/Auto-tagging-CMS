@@ -1,5 +1,6 @@
 import * as React from "react"
 import AddVideo from "./AddVideo"
+import TemplateSettings from "./TemplateSettings"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
 import ExamplesPage from "./ExamplesPage"
@@ -13,8 +14,6 @@ import {
   CircleHelp,
   FileText,
   Heart,
-  Home,
-  LibraryBig,
   MoreHorizontal,
   Plus,
   Pencil,
@@ -23,6 +22,7 @@ import {
   Search,
   Smile,
   Sparkles,
+  Settings2,
   Users,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -60,9 +60,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
   SidebarProvider,
   SidebarTrigger,
   useSidebar,
@@ -78,9 +75,10 @@ import {
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 
-type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video"
+type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video" | "template-settings"
 const labels: Record<Page, string> = {
   "add-video": "Add Content",
+  "template-settings": "Template Setting",
   home: "Home",
   video: "Content",
   library: "Library",
@@ -90,20 +88,10 @@ const labels: Record<Page, string> = {
   comedy: "Comedy Highlight",
   detail: "AI Metadata",
 }
-function DiscoveryIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M13 1.5c.45 0 .72.3.83.78l1.65 7.24 7.24 1.65c.48.11.78.38.78.83s-.3.72-.78.83l-7.24 1.65-1.65 7.24c-.11.48-.38.78-.83.78s-.72-.3-.83-.78l-1.65-7.24-7.24-1.65c-.48-.11-.78-.38-.78-.83s.3-.72.78-.83l7.24-1.65 1.65-7.24c.11-.48.38-.78.83-.78Z" />
-      <circle cx="3.5" cy="20.5" r="2" />
-    </svg>
-  )
-}
 const nav = [
-  { page: "home" as const, icon: Home },
   { page: "video" as const, icon: Clapperboard },
-  { page: "library" as const, icon: LibraryBig },
-  { page: "search" as const, icon: DiscoveryIcon },
   { page: "examples" as const, icon: Sparkles },
+  { page: "template-settings" as const, icon: Settings2 },
 ]
 const discoverySections = [
   { id: "list", label: "All Chatbot" },
@@ -134,6 +122,7 @@ const statuses: AnalysisStatus[] = [
 function pageFromHash(): Page {
   const hash = window.location.hash.slice(1)
   if (hash === "add-video") return "add-video"
+  if (hash === "template-settings") return "template-settings"
   if (hash === "search" || hash.startsWith("search/")) return "search"
   if (hash === "examples") return "examples"
   if (hash === "example/actor-discovery") return "actor"
@@ -577,10 +566,8 @@ function Workspace() {
   const [page, setPage] = React.useState<Page>(pageFromHash)
   const [activeDemo, setActiveDemo] = React.useState<string | null>(demoFromHash)
   const [assistantRegistry, setAssistantRegistry] = React.useState(readAssistantRegistry)
-  const [assistantSearch, setAssistantSearch] = React.useState("")
   const [lastAssistant, setLastAssistant] = React.useState(() => demoFromHash() || readAssistantRegistry().find(a => a.status !== "Archived")?.id || "")
   const [discoverySection, setDiscoverySection] = React.useState(sectionFromHash)
-  const [examplesTab, setExamplesTab] = React.useState("chapter")
   const [query, setQuery] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState("all")
   const [statusFilter, setStatusFilter] = React.useState("all")
@@ -707,17 +694,14 @@ function Workspace() {
                 <SidebarMenuItem key={item}>
                   <SidebarMenuButton
                     isActive={page === item || (page === "add-video" && item === "video") || ((page === "actor" || page === "comedy") && item === "examples")}
-                    onClick={() => item === "search" ? chooseDemo(null) : navigate(item)}
+                    onClick={() => navigate(item)}
                     aria-current={page === item ? "page" : undefined}
                     className="h-10 rounded-lg px-3"
                   >
                     <Icon aria-hidden="true" />
                     <span>{labels[item]}</span>
                   </SidebarMenuButton>
-                  {item === "search" && page === "search" && <div className="mt-2 space-y-3 border-l border-sidebar-border ml-4 pl-3">
-                    <div className="space-y-1.5"><p className="px-1 text-[10px] text-muted-foreground">目前 Chatbot</p><Select value={activeDemo || lastAssistant} onOpenChange={open => { if (open) setAssistantSearch("") }} onValueChange={id => chooseDemo(id, discoverySection === "list" ? "settings" : discoverySection)}><SelectTrigger aria-label="切換目前 Chatbot" className="w-full min-w-0"><SelectValue placeholder="Select Chatbot" /></SelectTrigger><SelectContent><div className="p-2"><Input aria-label="搜尋 Chatbot" placeholder="Search chatbots…" value={assistantSearch} onChange={e => setAssistantSearch(e.target.value)} onKeyDown={e => { if(e.key!=="Escape")e.stopPropagation() }} /></div>{assistantRegistry.filter(a => a.status !== "Archived" || a.id === activeDemo).filter(a => a.name.toLowerCase().includes(assistantSearch.toLowerCase())).map(a => <SelectItem key={a.id} value={a.id}>{a.name}{a.status === "Archived" ? "（已封存）" : ""}</SelectItem>)}</SelectContent></Select></div>
-                    <SidebarMenuSub aria-label="目前 Chatbot 的功能" className="mx-0 ml-3 mt-1 pr-0 pl-3">{discoverySections.filter(s => s.id !== "list").map(s => <SidebarMenuSubItem key={s.id}><SidebarMenuSubButton asChild isActive={discoverySection === s.id && !!activeDemo} className="h-9 text-sm"><button type="button" disabled={!activeDemo && !lastAssistant} onClick={() => navigateDiscovery(s.id)} aria-current={discoverySection === s.id && !!activeDemo ? "page" : undefined}><span>{s.label}</span></button></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub>
-                  </div>}
+
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -764,7 +748,7 @@ function Workspace() {
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "detail" && selected ? (
+          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
             <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Content"} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />
@@ -931,7 +915,7 @@ function Workspace() {
               </Card>
             </>
           ) : page === "examples" ? (
-            <ExamplesPage tab={examplesTab} onTabChange={setExamplesTab} onOpenDetail={openExample} />
+            <ExamplesPage onOpenDetail={openExample} />
           ) : page === "search" ? (
             <AISearchMVP key={activeDemo || "demo-list"} section={discoverySection} demoId={activeDemo} onDemoChange={chooseDemo} onSectionChange={navigateDiscovery} />
           ) : (

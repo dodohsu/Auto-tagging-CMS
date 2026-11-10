@@ -118,7 +118,7 @@ export default function AddVideo({ onBack, title = "Add Content" }: { onBack: ()
           <div role="button" tabIndex={0} aria-label="Choose a video" onClick={() => { setUploadSource("local"); setPickerOpen(true) }} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setUploadSource("local"); setPickerOpen(true) } }} onDragOver={event => { event.preventDefault(); setDragging(true) }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); files(event.dataTransfer.files) }} className={`group mt-5 flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-5 py-8 text-center transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ${dragging ? "border-blue-500 bg-blue-50" : "border-slate-300 bg-slate-50/40 hover:border-slate-400 hover:bg-slate-50"}`}>
             <Upload size={24} strokeWidth={1.5} className="text-slate-400 transition-colors group-hover:text-slate-600" />
             <h3 className="mt-4 text-sm font-medium">Drop a video here or click to browse</h3>
-            <p className="mt-2 text-xs text-slate-400">Local file or Video Assets · MP4, MOV, M4V, WebM, MKV</p>
+            <p className="mt-2 text-xs text-slate-400">MP4</p>
           </div>
           <input ref={input} type="file" accept="video/*,.mkv" className="sr-only" aria-label="Choose a local video file" onChange={event => { if (event.target.files) files(event.target.files); event.target.value = "" }} />
           <Dialog.Root open={pickerOpen} onOpenChange={setPickerOpen}>

@@ -1,5 +1,6 @@
 import * as React from "react"
 import AddVideo from "./AddVideo"
+import VideoPickerDialog from "./VideoPickerDialog"
 import TemplateSettings from "./TemplateSettings"
 import { readTemplates } from "./template-settings"
 import AIChapter from "./AIChapter"
@@ -599,6 +600,7 @@ function Workspace() {
   const [query, setQuery] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState("all")
   const [statusFilter, setStatusFilter] = React.useState("all")
+  const [assetPickerOpen, setAssetPickerOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<Video | null>(() => {
     if (pageFromHash() !== "detail") return null
     const id = window.location.hash.slice(1).split("/")[1]
@@ -794,7 +796,7 @@ function Workspace() {
                     catalog.
                   </p>
                 </div>
-                <Button onClick={() => navigate("add-video")}>
+                <Button onClick={() => setAssetPickerOpen(true)}>
                   <Plus />
                   Add Assets
                 </Button>
@@ -941,6 +943,7 @@ function Workspace() {
                   </div>
                 )}
               </Card>
+              <VideoPickerDialog open={assetPickerOpen} onOpenChange={setAssetPickerOpen} />
             </>
           ) : page === "examples" ? (
             <ExamplesPage onOpenDetail={openExample} />

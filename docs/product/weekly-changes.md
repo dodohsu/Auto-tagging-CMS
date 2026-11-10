@@ -378,4 +378,7 @@
 - Upload File Hover 時上傳圖示維持固定位置，只調整顏色。
 - Upload File 格式描述簡化為 MP4。
 - Popup 內 From Local 同步使用極簡上傳區樣式、整區點擊與 MP4 格式說明。
-- Video Assets 右上角按鈕改名為 Add Assets；點擊後直接開啟預設為 From Local 的上傳 Popup。
+- Video Assets 右上角按鈕改名為 Add Assets；點擊後保留原頁清單，直接疊加預設為 From Local 的上傳 Popup。
+- Video Assets 的 Add Assets Popup 僅保留 From Local 上傳，不提供 From Assets 切換。
+- Upload Asset Popup 加寬至大型視窗，並增加拖放區高度。
+- Upload Asset Popup 再放大至 1100px 最大寬度，拖放區高度增加至 420px。

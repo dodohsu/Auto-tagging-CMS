@@ -333,3 +333,29 @@
 ### 2026-11-10 | Video Assets 導覽命名
 
 - 導覽與影片清單頁的 Content 改名為 Video Assets；Examples 改用與 AI Analyze 不同的格狀圖示。
+
+### 2026-11-10 | AI Analyze V3
+
+- AI Analyze 的 Subtitle Card 僅保留 Input language，預設為 Auto；移除 Output language。
+- AI Analysis 將 Template 與 Tag Categories 整合為單一父子容器，以分隔線呈現層級，並統一標題、說明與按鈕字級。
+- Upload File 暫時僅支援 From Local，移除 From Cloud／S3 流程與標題旁資訊圖示。
+- Subtitle 說明改為選擇影片口語語言可提升 AI 分析準確度。
+- Upload File 保留大型拖放框，Choose videos 以小選單快速選擇 From Local 或 From Assets；現階段一次僅能選一支影片，Assets 視窗使用影片縮圖單選。
+- AI Analysis 拆成 AI Chapter 與 Metadata 子卡片；原 Tag Categories 設定移入 AI Chapter，Metadata 可選擇產生整支影片 Tags 的分類，Description 支援手動輸入或 AI 生成。
+- AI Analysis 標題與說明移到卡片外，AI Chapter 與 AI Metadata 改為兩張獨立卡片。
+- AI Metadata 內的 Description 移到 Video-level tags 上方。
+- 移除卡片外的 AI Analysis 標題與說明，只保留 AI Chapter 與 AI Metadata 兩張卡片。
+- AI Chapter 的 Tag Categories 說明明確標示其用途為產生 clip-level tags。
+- Tagging Focus 標題字級調整為與其他欄位標籤一致。
+- Tag Category 展開內容的淡灰暈染移至右上角，範圍擴大但維持低對比。
+- 展開中的 Tag Category 加入輕微浮起陰影與陰影過渡。
+- Subtitle、AI Chapter、AI Metadata 的圖標、標題與描述統一排版；圖標放大並使用淡灰底深灰圖示，降低視覺重量。
+- AI Chapter 的 Template 選擇由 Dropdown 改為可橫向滑動的小卡片，顯示 Template 名稱與 Tag Categories 數量。
+- Template 小卡片移除 Tag Categories 數量描述，只保留名稱與選中狀態。
+- 每張 Template 小卡片右上角加入低對比灰色漸層。
+- AI Chapter 的 Template UI 命名改為 Video Type；小卡片右上角改為無明確邊界的清透光暈，並略微加粗選中外框。
+- 移除 Video Type 與 Tag Categories 之間的分隔線，改以留白呈現層級。
+- Video Type 預設顯示位置固定的常用小卡片；超過四個時提供 View all，展開後可搜尋完整清單並以 Show less 收合，切換選項時不重新排序卡片。
+- Tag Categories 的新增按鈕文案由 Add Category 簡化為 Add。
+- AI Chapter 的 Video Type 命名統一改為 Video Template，包含搜尋與相關說明文案。
+- Video Template 目前直接顯示全部五個項目，超過五個時才顯示 View all。

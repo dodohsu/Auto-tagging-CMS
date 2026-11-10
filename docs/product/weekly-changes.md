@@ -377,3 +377,4 @@
 - Upload File 點擊區改為極簡呈現：縮短高度，移除圖示容器與獨立按鈕，只保留操作句與精簡格式說明。
 - Upload File Hover 時上傳圖示維持固定位置，只調整顏色。
 - Upload File 格式描述簡化為 MP4。
+- Popup 內 From Local 同步使用極簡上傳區樣式、整區點擊與 MP4 格式說明。

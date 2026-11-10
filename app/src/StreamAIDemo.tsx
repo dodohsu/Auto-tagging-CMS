@@ -171,7 +171,7 @@ function VideoThumbnail({
       role="img"
       aria-label={`${video.title} thumbnail`}
       className={`video-thumb thumb-${video.color} relative shrink-0 overflow-hidden rounded-md ${large ? "w-full" : "w-20 sm:w-24"} ${className}`}
-      style={video.id === "TELA-6825" ? { backgroundImage: `url(${gourmetThumbnail})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+      style={video.poster ? { backgroundImage: `url(${import.meta.env.BASE_URL}${video.poster})`, backgroundSize: "cover", backgroundPosition: "center" } : video.id === "TELA-6825" ? { backgroundImage: `url(${gourmetThumbnail})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
     >
       <span className="absolute right-1 bottom-1 rounded bg-slate-950/75 px-1 py-0.5 text-[10px] leading-none text-white tabular-nums">
         {video.duration}
@@ -333,6 +333,8 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const tabs = ["AI Metadata", "AI Chapter"]
   const videoMetadataGroups = metadataGroupsFor(video)
+  const [showPlayer, setShowPlayer] = React.useState(false)
+  const videoSource = video.localVideo && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? `${import.meta.env.BASE_URL}${video.localVideo}` : null
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -381,6 +383,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
           </Button>
         </div>
       </div>
+      {showPlayer && videoSource && <div role="dialog" aria-modal="true" aria-label={`${video.title} video player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowPlayer(false)}><div className="w-full max-w-5xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between text-white"><h2 className="font-semibold">{video.title}</h2><Button variant="secondary" onClick={() => setShowPlayer(false)}>Close</Button></div><video controls autoPlay playsInline preload="metadata" poster={video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : undefined} src={videoSource} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
       <Card className="mb-3 overflow-hidden bg-card/90 shadow-sm">
         <CardContent className="flex flex-col gap-5 p-4 lg:flex-row lg:items-center">
           <div className="relative w-full shrink-0 lg:w-56">
@@ -389,6 +392,8 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
               variant="secondary"
               size="icon"
               aria-label={`Play ${video.title}`}
+              disabled={!videoSource}
+              onClick={() => setShowPlayer(true)}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/85"
             >
               <Play className="fill-current" />

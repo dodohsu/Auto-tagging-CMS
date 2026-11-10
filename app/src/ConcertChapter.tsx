@@ -1,0 +1,32 @@
+import { useState } from "react"
+import { Film, Play, Sparkles } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { AIChapterLayout, ChapterHeader, ChapterTopicFilter, ChapterColumns, ChapterListPanel } from "./AIChapterLayout"
+import { concertClips, type ConcertClip } from "./concert-clips"
+import { readTemplates } from "./template-settings"
+import type { Video } from "@/mock-data/videos"
+
+const toSeconds = (value: string) => value.split(":").reduce((total, part) => total * 60 + Number(part), 0)
+const colors: Record<string, string> = { Mood: "#d9d2e9", Topic: "#d1dce9", Title: "#e6dccb", "Performance Type": "#d5e4db", "Music Genre": "#e4d5df" }
+
+export default function ConcertChapter({ video }: { video: Video }) {
+  const categories = readTemplates().find(template => template.name === "Concert")?.categories.map(category => category.name) ?? ["Mood", "Topic", "Title", "Performance Type", "Music Genre"]
+  const [selected, setSelected] = useState<ConcertClip>(concertClips[0])
+  const [filters, setFilters] = useState<string[]>([])
+  const [query, setQuery] = useState("")
+  const [collapsed, setCollapsed] = useState(false)
+  const [play, setPlay] = useState(false)
+  const visible = concertClips.filter(clip => (!filters.length || filters.includes(clip.category)) && `${clip.title} ${clip.tag ?? ""} ${clip.evidence}`.toLowerCase().includes(query.toLowerCase()))
+  const chronological = [...visible].sort((a, b) => toSeconds(a.start) - toSeconds(b.start) || toSeconds(a.end) - toSeconds(b.end))
+  const choose = (clip: ConcertClip) => { setSelected(clip); setPlay(true) }
+  const duration = toSeconds(video.duration)
+  return <AIChapterLayout>
+    <ChapterHeader><div><h2 className="flex items-center gap-2 text-xl font-semibold"><Sparkles className="size-5" />AI Chapter</h2><p className="mt-1 text-sm text-muted-foreground">Clips cut from the supplied Concert subtitles, listed in original video order.</p></div><Badge variant="outline">Concert.srt · {concertClips.length} clips</Badge></ChapterHeader>
+    <ChapterTopicFilter total={concertClips.length} visible={visible.length} topics={categories.map(name => ({ name, count: concertClips.filter(clip => clip.category === name).length, color: colors[name] }))} selected={filters} onToggle={name => setFilters(current => current.includes(name) ? current.filter(value => value !== name) : [...current, name])} onClear={() => setFilters([])} title="Tag Category Filter" allLabel="All categories" description="Filter clips by category. Timecodes refer to the original concert video; review labels identify tags that the subtitles cannot confirm on their own." />
+    <ChapterColumns left={<>
+      <Card className="gap-0 overflow-hidden py-0 shadow-none"><video key={selected.file} controls autoPlay={play} playsInline preload="metadata" poster={video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : undefined} src={`${import.meta.env.BASE_URL}${selected.file}`} className="aspect-video w-full bg-black" /><CardContent className="space-y-3 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs text-muted-foreground">{selected.category} · Original video {selected.start}–{selected.end}</p><h3 className="mt-1 text-lg font-semibold">{selected.title}</h3></div><div className="flex gap-2">{selected.tag && <Badge variant="outline">{selected.tag}</Badge>}{selected.needsReview && <Badge variant="secondary">Review tag</Badge>}</div></div><p className="text-sm leading-6 text-muted-foreground">{selected.evidence}</p></CardContent></Card>
+      <Card className="shadow-none"><CardContent className="space-y-3"><h3 className="text-sm font-semibold">Original video timeline</h3>{categories.map(category => <div key={category} className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-3"><span className="truncate text-xs text-muted-foreground">{category}</span><div className="relative h-6 rounded bg-muted">{visible.filter(clip => clip.category === category).map(clip => <button key={clip.id} type="button" title={`${clip.title} · ${clip.start}–${clip.end}`} aria-label={`Play ${clip.title} at ${clip.start}`} onClick={() => choose(clip)} className="absolute top-0 h-6 min-w-2 rounded border border-foreground/20 focus-visible:outline-2" style={{ left: `${toSeconds(clip.start) / duration * 100}%`, width: `${(toSeconds(clip.end) - toSeconds(clip.start)) / duration * 100}%`, backgroundColor: colors[category] }} />)}</div></div>)}<div className="flex justify-between text-xs tabular-nums text-muted-foreground"><span>00:00</span><span>{video.duration}</span></div></CardContent></Card>
+    </>} right={<ChapterListPanel count={`${visible.length} Clips`} query={query} onQueryChange={setQuery} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)}>{!collapsed && <div className="space-y-2 p-4">{chronological.map(clip => <button key={clip.id} type="button" onClick={() => choose(clip)} aria-current={selected.id === clip.id ? "true" : undefined} className={`w-full rounded-lg border p-3 text-left hover:bg-muted/60 focus-visible:outline-2 ${selected.id === clip.id ? "border-foreground/40 bg-muted/50" : ""}`}><span className="flex items-center justify-between gap-2 text-sm font-medium"><span className="flex items-center gap-2"><Film className="size-4" />{clip.title}</span><Play className="size-3.5" /></span><span className="mt-1 block text-xs tabular-nums text-muted-foreground">{clip.start}–{clip.end}</span><span className="mt-2 flex flex-wrap gap-2"><Badge variant="secondary">{clip.category}</Badge>{clip.tag && <Badge variant="outline">{clip.tag}</Badge>}{clip.needsReview && <Badge variant="secondary">Review tag</Badge>}</span></button>)}</div>}</ChapterListPanel>} />
+  </AIChapterLayout>
+}

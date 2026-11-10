@@ -2,8 +2,8 @@ import * as React from "react"
 import AddVideo from "./AddVideo"
 import TemplateSettings from "./TemplateSettings"
 import { readTemplates } from "./template-settings"
-import { concertClips, type ConcertClip } from "./concert-clips"
 import AIChapter from "./AIChapter"
+import ConcertChapter from "./ConcertChapter"
 import AISearchMVP from "./AISearchMVP"
 import ExamplesPage from "./ExamplesPage"
 import ComedyHighlightDetail from "./ComedyHighlightDetail"
@@ -271,11 +271,11 @@ function metadataGroupsFor(video: Video): MetadataGroup[] {
     label: category.name,
     description: `Default tags for ${category.name.toLowerCase()} in the ${template.name} template.`,
     icon: templateCategoryIcons[category.name] ?? Sparkles,
-    choices: category.tags.map(label => ({ label, selected: video.title === "Concert" && concertClips.some(clip => clip.category === category.name && clip.tag === label && !clip.needsReview) })),
+    choices: category.tags.map(label => ({ label })),
   })) ?? []
 }
 
-function MetadataGroupCard({ group, clips = [], onPlayClip }: { group: MetadataGroup; clips?: ConcertClip[]; onPlayClip?: (clip: ConcertClip) => void }) {
+function MetadataGroupCard({ group }: { group: MetadataGroup }) {
   const Icon = group.icon
   const selected = group.choices.filter((choice) => choice.selected).length
   return (
@@ -325,7 +325,7 @@ function MetadataGroupCard({ group, clips = [], onPlayClip }: { group: MetadataG
             ))}
           </div>
         </div>
-        {clips.length > 0 && <div className="border-t pt-4 xl:col-span-2"><h4 className="mb-3 text-sm font-semibold">Subtitle-based clips</h4><div className="grid gap-3 sm:grid-cols-2">{clips.map(clip => <div key={clip.id} className="rounded-lg border bg-muted/20 p-3"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-medium">{clip.title}</p><p className="mt-1 text-xs tabular-nums text-muted-foreground">{clip.start}–{clip.end}</p></div><Button variant="outline" size="sm" onClick={() => onPlayClip?.(clip)}><Play className="size-3.5" />Play clip</Button></div><div className="mt-2 flex flex-wrap gap-2">{clip.tag && <Badge variant="outline">{clip.tag}</Badge>}{clip.needsReview && <Badge variant="secondary">Review tag</Badge>}</div><p className="mt-2 text-xs leading-5 text-muted-foreground">{clip.evidence}</p></div>)}</div></div>}
+
       </CardContent>
     </Card>
   )
@@ -336,7 +336,6 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
   const tabs = ["AI Metadata", "AI Chapter"]
   const videoMetadataGroups = metadataGroupsFor(video)
   const [showPlayer, setShowPlayer] = React.useState(false)
-  const [activeClip, setActiveClip] = React.useState<ConcertClip | null>(null)
   const videoSource = video.localVideo && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? `${import.meta.env.BASE_URL}${video.localVideo}` : null
   return (
     <div>
@@ -386,7 +385,6 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
           </Button>
         </div>
       </div>
-      {activeClip && <div role="dialog" aria-modal="true" aria-label={`${activeClip.title} clip player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setActiveClip(null)}><div className="w-full max-w-4xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between gap-3 text-white"><div><h2 className="font-semibold">{activeClip.title}</h2><p className="text-xs tabular-nums text-white/70">Original video {activeClip.start}–{activeClip.end}</p></div><Button variant="secondary" onClick={() => setActiveClip(null)}>Close</Button></div><video key={activeClip.id} controls autoPlay playsInline preload="metadata" src={`${import.meta.env.BASE_URL}${activeClip.file}`} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
       {showPlayer && videoSource && <div role="dialog" aria-modal="true" aria-label={`${video.title} video player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowPlayer(false)}><div className="w-full max-w-5xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between text-white"><h2 className="font-semibold">{video.title}</h2><Button variant="secondary" onClick={() => setShowPlayer(false)}>Close</Button></div><video controls autoPlay playsInline preload="metadata" poster={video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : undefined} src={videoSource} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
       <Card className="mb-3 overflow-hidden bg-card/90 shadow-sm">
         <CardContent className="flex flex-col gap-5 p-4 lg:flex-row lg:items-center">
@@ -460,7 +458,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
               </CardHeader>
             </Card>
             {videoMetadataGroups.map((group) => (
-              <MetadataGroupCard key={group.label} group={group} clips={video.title === "Concert" ? concertClips.filter(clip => clip.category === group.label) : []} onPlayClip={setActiveClip} />
+              <MetadataGroupCard key={group.label} group={group} />
             ))}
             <Card className="shadow-sm">
               <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
@@ -582,7 +580,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
           </aside>
         </div>
       ) : (
-        chapterContent ?? <AIChapter key={video.id} video={video} />
+        chapterContent ?? (video.title === "Concert" ? <ConcertChapter video={video} /> : <AIChapter key={video.id} video={video} />)
       )}
     </div>
   )

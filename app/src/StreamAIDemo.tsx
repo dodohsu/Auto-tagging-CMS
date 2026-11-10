@@ -16,6 +16,7 @@ import {
   CircleHelp,
   FileText,
   Heart,
+  LayoutGrid,
   MoreHorizontal,
   Plus,
   Pencil,
@@ -83,7 +84,7 @@ const labels: Record<Page, string> = {
   "ai-analyze": "AI Analyze",
   "template-settings": "Template Setting",
   home: "Home",
-  video: "Content",
+  video: "Video Assets",
   library: "Library",
   search: "AI Chatbot",
   examples: "Examples",
@@ -94,7 +95,7 @@ const labels: Record<Page, string> = {
 const nav = [
   { page: "video" as const, icon: Clapperboard },
   { page: "ai-analyze" as const, icon: Sparkles },
-  { page: "examples" as const, icon: Sparkles },
+  { page: "examples" as const, icon: LayoutGrid },
   { page: "template-settings" as const, icon: Settings2 },
 ]
 const discoverySections = [
@@ -334,7 +335,7 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
   )
 }
 
-function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTab = "AI Metadata", chapterContent }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode }) {
+function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Metadata", chapterContent }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const tabs = ["AI Metadata", "AI Chapter"]
   const videoMetadataGroups = metadataGroupsFor(video)
@@ -751,7 +752,7 @@ function Workspace() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {page === "detail" ? "Content" : (page === "actor" || page === "comedy") ? "Examples" : labels[page]}
+                    {page === "detail" ? "Video Assets" : (page === "actor" || page === "comedy") ? "Examples" : labels[page]}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
                 {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
@@ -776,7 +777,7 @@ function Workspace() {
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
           {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
-            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Content"} />
+            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />
           ) : page === "comedy" ? (
@@ -786,7 +787,7 @@ function Workspace() {
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <h1 className="text-3xl font-semibold tracking-tight">
-                    Content
+                    Video Assets
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Browse, filter, and review AI analysis across your video
@@ -859,7 +860,7 @@ function Workspace() {
                     <TableHeader>
                       <TableRow className="bg-muted/50 hover:bg-muted/50">
                         <TableHead className="pl-5 text-xs uppercase">
-                          Content
+                          Video Assets
                         </TableHead>
                         <TableHead className="text-xs uppercase">
                           Type
@@ -966,14 +967,14 @@ function Workspace() {
                     </CardTitle>
                     <CardDescription>
                       {page === "home"
-                        ? "This section is a placeholder in the demo. Browse Content to explore the interactive video catalog."
+                        ? "This section is a placeholder in the demo. Browse Video Assets to explore the interactive video catalog."
                         : "這裡將集中管理已生成的 Highlight 影片、草稿、分享連結與使用統計。"}
                     </CardDescription>
                     <Button
                       className="mx-auto mt-4"
                       onClick={() => navigate("video")}
                     >
-                      Open Content
+                      Open Video Assets
                     </Button>
                   </CardHeader>
                 </Card>

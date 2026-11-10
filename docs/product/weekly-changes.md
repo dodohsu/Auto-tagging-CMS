@@ -329,3 +329,7 @@
 ### 2026-11-10 | AI Analyze 獨立入口
 
 - Side menu 新增 AI Analyze，開啟與 Add Content 相同的上傳、字幕及 AI Analysis 設定頁，頁面標題顯示為 AI Analyze。
+
+### 2026-11-10 | Video Assets 導覽命名
+
+- 導覽與影片清單頁的 Content 改名為 Video Assets；Examples 改用與 AI Analyze 不同的格狀圖示。

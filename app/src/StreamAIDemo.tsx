@@ -2,6 +2,7 @@ import * as React from "react"
 import AddVideo from "./AddVideo"
 import TemplateSettings from "./TemplateSettings"
 import { readTemplates } from "./template-settings"
+import { concertClips, type ConcertClip } from "./concert-clips"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
 import ExamplesPage from "./ExamplesPage"
@@ -270,11 +271,11 @@ function metadataGroupsFor(video: Video): MetadataGroup[] {
     label: category.name,
     description: `Default tags for ${category.name.toLowerCase()} in the ${template.name} template.`,
     icon: templateCategoryIcons[category.name] ?? Sparkles,
-    choices: category.tags.map(label => ({ label })),
+    choices: category.tags.map(label => ({ label, selected: video.title === "Concert" && concertClips.some(clip => clip.category === category.name && clip.tag === label && !clip.needsReview) })),
   })) ?? []
 }
 
-function MetadataGroupCard({ group }: { group: MetadataGroup }) {
+function MetadataGroupCard({ group, clips = [], onPlayClip }: { group: MetadataGroup; clips?: ConcertClip[]; onPlayClip?: (clip: ConcertClip) => void }) {
   const Icon = group.icon
   const selected = group.choices.filter((choice) => choice.selected).length
   return (
@@ -324,6 +325,7 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
             ))}
           </div>
         </div>
+        {clips.length > 0 && <div className="border-t pt-4 xl:col-span-2"><h4 className="mb-3 text-sm font-semibold">Subtitle-based clips</h4><div className="grid gap-3 sm:grid-cols-2">{clips.map(clip => <div key={clip.id} className="rounded-lg border bg-muted/20 p-3"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-medium">{clip.title}</p><p className="mt-1 text-xs tabular-nums text-muted-foreground">{clip.start}–{clip.end}</p></div><Button variant="outline" size="sm" onClick={() => onPlayClip?.(clip)}><Play className="size-3.5" />Play clip</Button></div><div className="mt-2 flex flex-wrap gap-2">{clip.tag && <Badge variant="outline">{clip.tag}</Badge>}{clip.needsReview && <Badge variant="secondary">Review tag</Badge>}</div><p className="mt-2 text-xs leading-5 text-muted-foreground">{clip.evidence}</p></div>)}</div></div>}
       </CardContent>
     </Card>
   )
@@ -334,6 +336,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
   const tabs = ["AI Metadata", "AI Chapter"]
   const videoMetadataGroups = metadataGroupsFor(video)
   const [showPlayer, setShowPlayer] = React.useState(false)
+  const [activeClip, setActiveClip] = React.useState<ConcertClip | null>(null)
   const videoSource = video.localVideo && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? `${import.meta.env.BASE_URL}${video.localVideo}` : null
   return (
     <div>
@@ -383,6 +386,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
           </Button>
         </div>
       </div>
+      {activeClip && <div role="dialog" aria-modal="true" aria-label={`${activeClip.title} clip player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setActiveClip(null)}><div className="w-full max-w-4xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between gap-3 text-white"><div><h2 className="font-semibold">{activeClip.title}</h2><p className="text-xs tabular-nums text-white/70">Original video {activeClip.start}–{activeClip.end}</p></div><Button variant="secondary" onClick={() => setActiveClip(null)}>Close</Button></div><video key={activeClip.id} controls autoPlay playsInline preload="metadata" src={`${import.meta.env.BASE_URL}${activeClip.file}`} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
       {showPlayer && videoSource && <div role="dialog" aria-modal="true" aria-label={`${video.title} video player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowPlayer(false)}><div className="w-full max-w-5xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between text-white"><h2 className="font-semibold">{video.title}</h2><Button variant="secondary" onClick={() => setShowPlayer(false)}>Close</Button></div><video controls autoPlay playsInline preload="metadata" poster={video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : undefined} src={videoSource} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
       <Card className="mb-3 overflow-hidden bg-card/90 shadow-sm">
         <CardContent className="flex flex-col gap-5 p-4 lg:flex-row lg:items-center">
@@ -410,10 +414,10 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
             <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <span>ID&nbsp; {video.id}</span>
               <span>{video.type}</span>
-              <span>Food</span>
+              {video.id === "TELA-6825" && <span>Food</span>}
               <span>{video.year}</span>
               <span>{video.duration}</span>
-              <span>SP</span>
+              {video.id === "TELA-6825" && <span>SP</span>}
             </div>
           </div>
         </CardContent>
@@ -456,7 +460,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
               </CardHeader>
             </Card>
             {videoMetadataGroups.map((group) => (
-              <MetadataGroupCard key={group.label} group={group} />
+              <MetadataGroupCard key={group.label} group={group} clips={video.title === "Concert" ? concertClips.filter(clip => clip.category === group.label) : []} onPlayClip={setActiveClip} />
             ))}
             <Card className="shadow-sm">
               <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
@@ -465,12 +469,11 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                   <h3 className="font-semibold">
                     Metadata Summary
                     <br />
-                    (AI Generated)
+                    {video.title === "Concert" ? "(Subtitle-based)" : "(AI Generated)"}
                   </h3>
                 </div>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  《孤独のグルメ
-                  SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。
+                  {video.title === "Concert" ? "The supplied subtitles cover pre-show nerves, rehearsal, audience reflections, a group name mention, and an onstage song. Mood and topic clips are linked to their source timecodes. The group name, performance type, and music genre still need review." : "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。"}
                 </p>
               </CardContent>
             </Card>
@@ -490,14 +493,11 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                   <div>
                     <Badge variant="secondary" className="mb-2">
                       <Sparkles />
-                      AI Generated
+                      {video.title === "Concert" ? "Subtitle-based" : "AI Generated"}
                     </Badge>
                     <h3 className="font-semibold">Synopsis</h3>
                     <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                      Inogashira Goro visits various regions to enjoy their
-                      unique local cuisine. Through a personal and detailed
-                      dining journey, the show portrays the richness of local
-                      culture and the heartfelt connection to food.
+                      {video.title === "Concert" ? "Performers explore the venue, prepare backstage, reflect on the audience, and sing onstage. This summary follows the supplied Japanese subtitles." : "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food."}
                     </p>
                   </div>
                 </div>
@@ -509,7 +509,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                   <div>
                     <dt className="text-xs text-muted-foreground">Subtitles</dt>
                     <dd className="mt-1 font-medium">
-                      Japanese · Traditional Chinese · English
+                      {video.title === "Concert" ? "Japanese" : "Japanese · Traditional Chinese · English"}
                     </dd>
                   </div>
                   <div>
@@ -544,16 +544,15 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                   </Button>
                 </div>
                 <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                  <li>
-                    Follows Inogashira Goro's journey to explore unique local
-                    cuisine.
-                  </li>
-                  <li>
-                    Reflects real dining environments and cooking processes.
-                  </li>
-                  <li>
-                    Conveys the protagonist's inner thoughts and love for food.
-                  </li>
+                  {video.title === "Concert" ? <>
+                    <li>Concert.srt provides the timecodes and dialogue for each clip.</li>
+                    <li>Descriptions and confirmed tags are tied to the subtitle excerpt.</li>
+                    <li>Group name, performance type, and music genre require manual review.</li>
+                  </> : <>
+                    <li>Follows Inogashira Goro's journey to explore unique local cuisine.</li>
+                    <li>Reflects real dining environments and cooking processes.</li>
+                    <li>Conveys the protagonist's inner thoughts and love for food.</li>
+                  </>}
                 </ul>
               </CardContent>
             </Card>
@@ -664,7 +663,7 @@ function Workspace() {
     setSelected(video)
     setDetailOrigin(origin)
     setPage("detail")
-    window.history.pushState(null, "", origin === "examples" ? `#detail/${video.id}/examples` : "#detailpage")
+    window.history.pushState(null, "", origin === "examples" ? `#detail/${video.id}/examples` : `#detail/${video.id}`)
     if (isMobile) setOpenMobile(false)
   }
   const openExample = (exampleId: string) => {

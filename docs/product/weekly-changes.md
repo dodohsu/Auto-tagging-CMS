@@ -383,3 +383,4 @@
 - Upload Asset Popup 加寬至大型視窗，並增加拖放區高度。
 - Upload Asset Popup 再放大至 1100px 最大寬度，拖放區高度增加至 420px。
 - Upload Asset Popup 調整為中型尺寸：880px 最大寬度、320px 拖放區高度。
+- Video Assets 列表的 AI analysis 欄位改名為 Status，狀態統一為 Uploading、Analyzing、Failed、Completed。

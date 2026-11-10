@@ -119,10 +119,10 @@ function sectionFromHash() {
 }
 const types = [...new Set(videos.map((video) => video.type))]
 const statuses: AnalysisStatus[] = [
-  "Completed",
+  "Uploading",
   "Analyzing",
-  "Queued",
   "Failed",
+  "Completed",
 ]
 
 function pageFromHash(): Page {
@@ -147,9 +147,9 @@ function pageFromHash(): Page {
 
 function StatusBadge({ status }: { status: AnalysisStatus }) {
   const color = {
+    Uploading: "bg-amber-50 text-amber-700",
     Completed: "bg-emerald-50 text-emerald-700",
     Analyzing: "bg-blue-50 text-blue-700",
-    Queued: "bg-amber-50 text-amber-700",
     Failed: "bg-red-50 text-red-700",
   }[status]
   return (
@@ -874,7 +874,7 @@ function Workspace() {
                           Year
                         </TableHead>
                         <TableHead className="hidden text-xs uppercase sm:table-cell">
-                          AI analysis
+                          Status
                         </TableHead>
                       </TableRow>
                     </TableHeader>

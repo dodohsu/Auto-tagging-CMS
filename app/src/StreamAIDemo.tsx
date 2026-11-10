@@ -1,6 +1,7 @@
 import * as React from "react"
 import AddVideo from "./AddVideo"
 import TemplateSettings from "./TemplateSettings"
+import { readTemplates } from "./template-settings"
 import AIChapter from "./AIChapter"
 import AISearchMVP from "./AISearchMVP"
 import ExamplesPage from "./ExamplesPage"
@@ -253,6 +254,26 @@ const metadataGroups: MetadataGroup[] = [
   },
 ]
 
+const templateCategoryIcons: Record<string, typeof Heart> = {
+  Mood: Smile,
+  Topic: FileText,
+  Title: Clapperboard,
+  "Highlight Type": Sparkles,
+  "Performance Type": Sparkles,
+  "Music Genre": Heart,
+  "Event Type": Clapperboard,
+}
+function metadataGroupsFor(video: Video): MetadataGroup[] {
+  if (video.id === "TELA-6825") return metadataGroups
+  const template = readTemplates().find(item => item.name === video.title)
+  return template?.categories.filter(category => category.enabled).map(category => ({
+    label: category.name,
+    description: `Default tags for ${category.name.toLowerCase()} in the ${template.name} template.`,
+    icon: templateCategoryIcons[category.name] ?? Sparkles,
+    choices: category.tags.map(label => ({ label })),
+  })) ?? []
+}
+
 function MetadataGroupCard({ group }: { group: MetadataGroup }) {
   const Icon = group.icon
   const selected = group.choices.filter((choice) => choice.selected).length
@@ -311,6 +332,7 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
 function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTab = "AI Metadata", chapterContent }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const tabs = ["AI Metadata", "AI Chapter"]
+  const videoMetadataGroups = metadataGroupsFor(video)
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -418,8 +440,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                   </CardTitle>
                   <CardDescription className="mt-1 max-w-2xl">
                     Extract and analyze key metadata from the video, including
-                    genre, theme, mood, style, and more, using AI search,
-                    recommendation, and content generation.
+                    tags from this video’s template for search and discovery.
                   </CardDescription>
                 </div>
                 <Button variant="outline" size="sm">
@@ -428,7 +449,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
                 </Button>
               </CardHeader>
             </Card>
-            {metadataGroups.map((group) => (
+            {videoMetadataGroups.map((group) => (
               <MetadataGroupCard key={group.label} group={group} />
             ))}
             <Card className="shadow-sm">

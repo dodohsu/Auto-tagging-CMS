@@ -317,3 +317,4 @@
 - 左側選單新增 Template Setting，可建立 Template、編輯預設 Tag Categories 與 Tags，按 Save 儲存至本機瀏覽器，Add Content 讀取相同設定。
 - 左側選單隱藏 Home、Library、AI Chatbot。
 - Examples 頁移除原本 AI Chapter／AI Genre／AI Search Tab，改為 Concert 與 Comedy Show 兩個情境卡片；Comedy Show 保留既有示意頁入口。
+- Video Content 的 AI Metadata 分類依 Concert、Reality Show、Comedy Show、Nostalgia Collection、Sports Event 模板顯示，並讀取各分類預設 Tags；《孤独のグルメ SP》保留原示意資料。

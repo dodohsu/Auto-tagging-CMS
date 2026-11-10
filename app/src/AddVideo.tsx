@@ -109,7 +109,7 @@ export default function AddVideo({ onBack, title = "Add Content" }: { onBack: ()
     setReview(false)
   }
   return <div className="mx-auto max-w-[1200px] pb-5">
-    <button onClick={onBack} className="mb-5 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} />Back to Video Assets</button>
+    {title !== "AI Analyze" && <button onClick={onBack} className="mb-5 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} />Back to Video Assets</button>}
     <div className="mb-7 flex flex-wrap items-start gap-3"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div></div>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(400px,1.15fr)]">
       <div className="space-y-5 xl:sticky xl:top-6">

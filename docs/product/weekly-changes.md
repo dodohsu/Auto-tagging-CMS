@@ -359,3 +359,16 @@
 - Tag Categories 的新增按鈕文案由 Add Category 簡化為 Add。
 - AI Chapter 的 Video Type 命名統一改為 Video Template，包含搜尋與相關說明文案。
 - Video Template 目前直接顯示全部五個項目，超過五個時才顯示 View all。
+- Video Template 卡片改用細外框，選中時加入輕微上浮與柔和陰影。
+- Video Template 卡片在 Hover 時同步輕微上浮並顯示柔和陰影。
+- 移除 Video Template 卡片右上角的漸層光暈，改為乾淨純色底。
+- AI Chapter 描述改為引導使用者選擇 Template 並調整 AI 分析影片所使用的 Categories。
+- Video Template 橫向容器增加上方與側邊緩衝，避免浮起卡片及陰影被裁切。
+- Video Template 橫向列右側加入白色漸層與向右箭頭，提示並支援滑動查看更多項目。
+- 選中的 Video Template 改為深灰底白字，並略微降低所有 Template 卡片高度。
+- 隱藏 Video Template 的橫向捲軸，保留觸控板、手勢與箭頭捲動。
+- Video Template 選中狀態由深灰改為淺灰底與深灰字，降低邊框及陰影重量。
+- Video Template 選中狀態簡化為深灰邊框，移除底色、勾選圖示與常駐浮起效果。
+- Choose videos 改為單一大型 Popup，並在同一視窗內切換 From Local 與 From Assets。
+- Tag Categories 的啟用控制由 Toggle 改為 Checkbox。
+- AI Metadata 的 Video-level tags Checkbox 移至每張選項卡右側。

@@ -891,7 +891,7 @@ function Workspace() {
                             <div className="flex min-w-40 items-center gap-3">
                               <VideoThumbnail
                                 video={video}
-                                className="w-28 sm:w-32"
+                                className="video-list-thumb w-28 sm:w-32"
                               />
                               <div className="min-w-0">
                                 <div className="max-w-48 truncate font-medium text-foreground sm:max-w-none">

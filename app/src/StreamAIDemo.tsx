@@ -391,9 +391,10 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Content", initialTa
             <Button
               variant="secondary"
               size="icon"
-              aria-label={`Play ${video.title}`}
-              disabled={!videoSource}
-              onClick={() => setShowPlayer(true)}
+              aria-label={videoSource ? `Play ${video.title}` : video.externalShareUrl ? `Open ${video.title} on NAS` : `Video unavailable for ${video.title}`}
+              title={!videoSource && video.externalShareUrl ? "Open NAS sharing page" : undefined}
+              disabled={!videoSource && !video.externalShareUrl}
+              onClick={() => { if (videoSource) setShowPlayer(true); else if (video.externalShareUrl) window.open(video.externalShareUrl, "_blank", "noopener,noreferrer") }}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/85"
             >
               <Play className="fill-current" />

@@ -319,3 +319,4 @@
 - Examples 頁移除原本 AI Chapter／AI Genre／AI Search Tab，改為 Concert 與 Comedy Show 兩個情境卡片；Comedy Show 保留既有示意頁入口。
 - Video Content 的 AI Metadata 分類依 Concert、Reality Show、Comedy Show、Nostalgia Collection、Sports Event 模板顯示，並讀取各分類預設 Tags；《孤独のグルメ SP》保留原示意資料。
 - Concert 與 Reality Show 對應兩支使用者提供的原片，更新縮圖與片長；本機使用原片播放，線上完整播放待接 NAS HTTPS 網址。
+- Concert 線上影片入口連至已確認可用的 NAS Shared link；Reality Show 仍待不含 SynoToken 的公開分享網址。

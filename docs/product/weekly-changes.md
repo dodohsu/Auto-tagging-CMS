@@ -373,3 +373,4 @@
 - Tag Categories 的啟用控制由 Toggle 改為 Checkbox。
 - AI Metadata 的 Video-level tags Checkbox 移至每張選項卡右側。
 - AI Analyze 頁面移除 Back to Video Assets 返回連結；其他共用流程維持原有返回操作。
+- Upload File 大型虛線框改為整區可點擊並支援鍵盤操作，Hover 時呈現邊框、底色、陰影與圖示浮起回饋。

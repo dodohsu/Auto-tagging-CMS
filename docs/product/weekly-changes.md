@@ -325,3 +325,7 @@
 ### 2026-11-10 | List 縮圖移除黃色圈圈
 
 - Video Content List 的所有縮圖移除黃色圓形裝飾，保留縮圖圖片與時長標示。
+
+### 2026-11-10 | AI Analyze 獨立入口
+
+- Side menu 新增 AI Analyze，開啟與 Add Content 相同的上傳、字幕及 AI Analysis 設定頁，頁面標題顯示為 AI Analyze。

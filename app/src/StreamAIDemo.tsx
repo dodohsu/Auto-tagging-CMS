@@ -77,9 +77,10 @@ import {
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 
-type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video" | "template-settings"
+type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video" | "ai-analyze" | "template-settings"
 const labels: Record<Page, string> = {
   "add-video": "Add Content",
+  "ai-analyze": "AI Analyze",
   "template-settings": "Template Setting",
   home: "Home",
   video: "Content",
@@ -92,6 +93,7 @@ const labels: Record<Page, string> = {
 }
 const nav = [
   { page: "video" as const, icon: Clapperboard },
+  { page: "ai-analyze" as const, icon: Sparkles },
   { page: "examples" as const, icon: Sparkles },
   { page: "template-settings" as const, icon: Settings2 },
 ]
@@ -124,6 +126,7 @@ const statuses: AnalysisStatus[] = [
 function pageFromHash(): Page {
   const hash = window.location.hash.slice(1)
   if (hash === "add-video") return "add-video"
+  if (hash === "ai-analyze") return "ai-analyze"
   if (hash === "template-settings") return "template-settings"
   if (hash === "search" || hash.startsWith("search/")) return "search"
   if (hash === "examples") return "examples"
@@ -772,7 +775,7 @@ function Workspace() {
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
+          {page === "add-video" ? <AddVideo onBack={() => navigate("video")} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
             <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Content"} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />

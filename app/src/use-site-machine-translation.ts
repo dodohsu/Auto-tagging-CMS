@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { translate, translateTag, type Locale } from "@/i18n"
+import { translate, translateTag, normalizeTranslation, type Locale } from "@/i18n"
 
 type TranslatorInstance = { translate: (text: string) => Promise<string> }
 type TranslatorFactory = {
@@ -8,6 +8,7 @@ type TranslatorFactory = {
 }
 
 const originalText = new WeakMap<Text, string>()
+const appliedText = new WeakMap<Text, string>()
 const originalAttributes = new WeakMap<Element, Map<string, string>>()
 const translatorCache = new Map<string, Promise<TranslatorInstance | null>>()
 const translationCache = new Map<string, Promise<string>>()
@@ -42,12 +43,12 @@ async function machineTranslate(locale: Locale, value: string) {
   const tag = translateTag(locale, value)
   if (tag !== value) return tag
   const source = sourceLanguage(value)
-  if (source === locale) return value
+  if (source === locale) return normalizeTranslation(locale, value)
   const key = `${source}:${locale}:${value}`
   if (!translationCache.has(key)) translationCache.set(key, (async () => {
     const translator = await browserTranslator(source, locale)
-    if (!translator) return value
-    try { return await translator.translate(value) } catch { return value }
+    if (!translator) return normalizeTranslation(locale, value)
+    try { return normalizeTranslation(locale, await translator.translate(value)) } catch { return normalizeTranslation(locale, value) }
   })())
   return translationCache.get(key)!
 }
@@ -64,16 +65,16 @@ export function useSiteMachineTranslation(locale: Locale) {
       const parent = node.parentElement
       if (skipped(parent)) return
       const current = node.nodeValue ?? ""
-      if (!originalText.has(node)) originalText.set(node, current)
+      if (!originalText.has(node) || (appliedText.has(node) && current !== appliedText.get(node))) originalText.set(node, current)
       const original = originalText.get(node) ?? current
-      if (locale === "en") { if (node.nodeValue !== original) node.nodeValue = original; return }
+      if (locale === "en") { appliedText.set(node, original); if (node.nodeValue !== original) node.nodeValue = original; return }
       if (!shouldTranslate(original)) return
       const leading = original.match(/^\s*/)?.[0] ?? ""
       const trailing = original.match(/\s*$/)?.[0] ?? ""
       const value = original.trim()
       const result = await machineTranslate(locale, value)
       const next = `${leading}${result}${trailing}`
-      if (!cancelled && node.isConnected && node.nodeValue !== next) node.nodeValue = next
+      if (!cancelled && node.isConnected) { appliedText.set(node, next); if (node.nodeValue !== next) node.nodeValue = next }
     }
     const translateElement = async (element: Element) => {
       if (skipped(element)) return

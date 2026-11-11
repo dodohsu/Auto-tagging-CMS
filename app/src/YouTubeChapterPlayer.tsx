@@ -5,6 +5,8 @@ type YouTubePlayer = {
   destroy: () => void
   getCurrentTime: () => number
   getPlayerState: () => number
+  mute: () => void
+  playVideo: () => void
   seekTo: (seconds: number, allowSeekAhead: boolean) => void
 }
 type YouTubeApi = {
@@ -47,7 +49,7 @@ function loadYouTubeApi() {
   return apiPromise
 }
 
-export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, title }: { videoId: string; time: number; onTimeChange: (seconds: number) => void; title: string }) {
+export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, title, autoPlay = false }: { videoId: string; time: number; onTimeChange: (seconds: number) => void; title: string; autoPlay?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const lastReportedTime = useRef<number | null>(null)
@@ -72,12 +74,16 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
         videoId,
         width: "100%",
         height: "100%",
-        host: "https://www.youtube-nocookie.com",
-        playerVars: { controls: 1, playsinline: 1, rel: 0, start: Math.floor(timeRef.current) },
+        host: "https://www.youtube.com",
+        playerVars: { autoplay: autoPlay ? 1 : 0, controls: 1, playsinline: 1, rel: 0, start: Math.floor(timeRef.current), origin: window.location.origin },
         events: {
           onReady: event => {
             playerRef.current = event.target
             if (timeRef.current > 0) event.target.seekTo(timeRef.current, true)
+            if (autoPlay) {
+              event.target.mute()
+              event.target.playVideo()
+            }
           },
           onStateChange: event => {
             if (poll !== undefined) window.clearInterval(poll)
@@ -104,7 +110,7 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
       playerRef.current?.destroy()
       playerRef.current = null
     }
-  }, [videoId])
+  }, [autoPlay, videoId])
 
   useEffect(() => {
     const player = playerRef.current

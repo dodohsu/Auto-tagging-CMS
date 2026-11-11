@@ -15,7 +15,8 @@ import { videos } from "./mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 import { translateTag, type Locale } from "@/i18n"
 
-type Item = { id: string; name: string; source: string; key: string; thumbnail?: string; localPreview?: boolean; uploadProgress?: number }
+export type AnalyzeVideoItem = { name: string; key: string; thumbnail?: string; localPreview?: boolean }
+type Item = AnalyzeVideoItem & { id: string; source: string; uploadProgress?: number }
 function FocusTags({ defaults, disabled = false, locale = "en" }: { defaults: string[]; disabled?: boolean; locale?: Locale }) {
   const [tags, setTags] = useState(defaults)
   const [draft, setDraft] = useState("")
@@ -77,7 +78,7 @@ function Analysis({ locale = "en" }: { locale?: Locale }) {
     </Card>
   </div>
 }
-export default function AddVideo({ onBack, title = "Add Content", initialPickerOpen = false, locale = "en" }: { onBack: () => void; title?: string; initialPickerOpen?: boolean; locale?: Locale }) {
+export default function AddVideo({ onBack, onGenerate, title = "Add Content", initialPickerOpen = false, locale = "en" }: { onBack: () => void; onGenerate?: (item: AnalyzeVideoItem) => void; title?: string; initialPickerOpen?: boolean; locale?: Locale }) {
   const [items, setItems] = useState<Item[]>([])
   const [error, setError] = useState("")
   const [analysisName, setAnalysisName] = useState(() => {
@@ -128,10 +129,15 @@ export default function AddVideo({ onBack, title = "Add Content", initialPickerO
     setReview(false)
   }
   const uploadInProgress = items.some(item => item.localPreview && (item.uploadProgress ?? 0) < 100)
+  const generate = () => {
+    if (!items.length || uploadInProgress) return
+    if (onGenerate) onGenerate(items[0])
+    else setReview(true)
+  }
   return <div className="mx-auto max-w-[1200px] pb-5">
     {title !== "AI Analyze" && <button onClick={onBack} className="mb-5 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} />Back to Video Assets</button>}
-    <div className="mb-7 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div><div ref={actions} className="flex gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length || uploadInProgress} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>
-    {showStickyActions && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1256px] items-center justify-between gap-4 px-4 sm:px-7"><Input value={analysisName} onChange={event => setAnalysisName(event.target.value)} maxLength={120} aria-label="AI Analysis Name" className="h-9 w-full max-w-sm bg-white/60 text-sm shadow-none" /><div className="flex shrink-0 gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length || uploadInProgress} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div></div>}
+    <div className="mb-7 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div><div ref={actions} className="flex gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length || uploadInProgress} onClick={generate}><Sparkles size={16} />AI Generate</Button></div></div>
+    {showStickyActions && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1256px] items-center justify-between gap-4 px-4 sm:px-7"><Input value={analysisName} onChange={event => setAnalysisName(event.target.value)} maxLength={120} aria-label="AI Analysis Name" className="h-9 w-full max-w-sm bg-white/60 text-sm shadow-none" /><div className="flex shrink-0 gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length || uploadInProgress} onClick={generate}><Sparkles size={16} />AI Generate</Button></div></div></div>}
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(400px,1.15fr)]">
       <div className="space-y-5 xl:sticky xl:top-6">
         <Card className="gap-0 rounded-xl p-6 shadow-none">

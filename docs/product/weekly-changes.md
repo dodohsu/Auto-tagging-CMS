@@ -413,3 +413,75 @@
 - 左側影片選擇卡片標題由 Upload File 改為 Choose a video。
 - Choose a video 主操作文案明確標示可從 Local 上傳或從 Video Assets 選取，並強調 Video Assets 入口。
 - From Local 影片上傳期間停用 AI Generate；上傳完成後才開放操作，標題列與固定 Action Bar 狀態同步。
+- 點擊 AI Generate 後返回 Video Assets，右下角 Panel 顯示 AI 分析進度；完成後切換為完成 Panel，並提供 View Asset 直接開啟對應影片。
+- From Local 來源在 Demo 中建立暫存 Video Asset；此流程為前端模擬，尚未連接正式分析服務。
+- AI Generate 進度 Panel 的毛玻璃效果與上方固定 Action Bar 統一：70% 白底、中度背景模糊、淡灰邊框與輕陰影。
+
+### 2026-11-11 | Assets Detail Component V1
+
+- Assets Detail Tab 順序調整為 AI Chapter、AI Metadata。
+- AI Chapter 與 AI Metadata 使用獨立網址：`#detail/{Asset ID}/ai-chapter`、`#detail/{Asset ID}/ai-metadata`，支援分享、重新整理與瀏覽器返回。
+- AI Metadata 採左右雙欄：左側保留 Content Overview，右側顯示 Tag Categories。
+- Tag Categories 僅顯示在 AI Chapter 片段中出現至少三次的 Tags，並以小型 Tag 呈現出現次數。
+- 移除 AI Metadata 標題與說明、AI Metadata Sources and Basis、Relevant Similar Content。
+- Assets Detail 頂部操作列捲出畫面後顯示 Sticky Action Bar，保留 Breadcrumb、版本、Re-analyze、Save 與更多操作，並沿用 AI Analyze 的毛玻璃效果。
+- Assets Detail V1 暫時移除頂部影片摘要卡，保留操作列、Tabs 與頁籤內容。
+- Concert 的 AI Chapter 移除重複標題、摘要文案與獨立來源 Badge；將 Concert.srt、Clip 數量與 Tag Categories 整合至單一篩選工具列。
+- Concert AI Chapter 篩選工具列標題簡化為 Tag Categories。
+- Assets Detail 操作列左側新增精簡影片摘要卡，以縮圖為主並顯示影片名稱、狀態、Asset ID、類型與長度；右側維持版本與操作按鈕。
+- Assets Detail 的 Asset 名稱與分析版本名稱分離：摘要／列表使用影片名稱；版本選單顯示 `AI Analysis_V1 · YYYY-MM-DD HH:mm`。
+- Assets Detail 摘要中的影片名稱改為可編輯輸入框；分析版本名稱維持獨立。下捲後 Sticky Action Bar 左側只顯示 Breadcrumb，並同步使用修改後的影片名稱。
+- 影片名稱輸入框恢復清楚的外框與白底，加入 Hover／Focus 回饋，避免外觀被誤認為靜態文字。
+- 影片摘要區重新整理為兩層：第一層顯示名稱輸入框，第二層顯示 Asset 資訊。
+- 影片摘要縮圖放大；Status 移至整條 Detail Toolbar 右上角，版本與操作按鈕排列於其下方，平衡左右視覺重量。
+- Assets Detail 移除 Save 與更多操作；影片名稱改為離開欄位或按 Enter 自動儲存，短暫顯示 Saved，並保存在瀏覽器本機。
+- Assets Detail 的 Re-analyze 改為主要按鈕樣式，並同步套用至 Sticky Action Bar。
+- Concert Player Review 預設載入完整影片；播放器預設縮小為 760px 內的 16:9 尺寸，可從右下角等比例調整寬度，並提供 Reset size 恢復預設大小。
+- Concert Player Review 移除 Selected clip 與 Full video 切換按鈕；預設顯示完整影片，點選 Clip 清單時直接切換片段。
+- Assets Detail 的 Sticky Action Bar 右側顯示目前分析版本選單，排列於 Re-analyze 左側；左側維持 Breadcrumb。
+- Assets Detail 摘要與 Tabs 合併為平面白色工作區，移除卡片圓角、外框與陰影，只保留底部分隔與內容留白。
+- Assets Detail 平面工作區改用自然雙欄對齊：左側摘要垂直置中，右側 Status 與操作上下排列，移除絕對定位與額外上方位移，縮短 Tabs 間距。
+- 增加摘要區底部至 Tabs 分隔線的留白，使影片縮圖上下間距一致。
+- Assets Detail 摘要區移除影片縮圖，縮減上下內距與右側操作間距，使頂部白色工作區更窄。
+- 依設計確認恢復 Assets Detail 有影片縮圖的摘要版本，並還原其上下留白與操作間距。
+- Assets Detail 右側 Status、版本選單與 Re-analyze 收攏為同一組，改為靠右垂直集中排列。
+- Assets Detail Tabs 從白色摘要工作區拆出，改放在頁面淺灰背景上，移除 Tabs 白底與上方框線。
+- 增加 Tabs 與上方白色摘要區的間距，讓頁籤位置稍微下移。
+- 補足白色摘要區底部內距，使縮圖與內容距離上下邊界一致。
+- Assets Detail 將影片摘要、AI Analysis Name、版本與操作按鈕整合為單一 Toolbar，移除摘要區塊的獨立卡片外框。
+- Assets Detail 的返回箭頭與 Breadcrumb 整合至全站頂部 Header，移除內容區重複導覽列；Detail 操作列只保留版本與操作按鈕。
+- Concert Player Review 的完整影片改接 YouTube 不公開影片，使用標準嵌入播放器並帶入網站來源識別，不再依賴 NAS 或以短 Clip 作為完整影片備援；實際完整時長更新為 20:37。
+- Concert Player Review 固定使用完整 20:37 影片；選取右側 Clip 或 Timeline 時僅跳至完整影片的對應時間點，不再切換成 13–44 秒的短片檔案。
+- Concert 時間軸移除章節模式／場景模式切換，固定呈現章節與 Clip 雙層時間軸。
+- Concert Player Review 進入頁面後自動靜音播放完整影片；使用者可透過播放器控制開啟聲音。
+- Concert AI Chapter 左欄整合為單一工作區：上方集中顯示完整影片，下方直接銜接時間軸；移除播放器標題列、調整大小說明與 Selected moment 資訊區塊。
+
+### 2026-11-11 | Concert AI Chapter 影片與時間軸調整
+
+- 依附圖將影片預設寬度調整為灰色工作區約 72%，維持 16:9 並置中。
+- 移除 Concert 時間軸整排 Chapter 區段，保留彩色 Clip、播放游標與時間刻度。
+- 灰色區域右下角加入縮放按鈕；支援點擊放大／縮小、拖曳與方向鍵等比例 Resize，放大後仍可調整大小。
+- Concert 右側 Clip 清單加入對應片段實際畫面縮圖，移除 Review tag Badge；灰色區域縮放圖示縮小為 16px。
+- Concert Clip List 僅顯示 Categories 下的 Tag，不顯示 Categories 名稱；無 Tag 的片段不保留標籤空白列。
+- Concert 右側清單標題改為 AI Chapter，移除搜尋框與全部收合操作，維持片段清單直接展開。
+- 依使用者確認的字幕方案，Concert 改為 10 個首尾相接的 Clip，完整涵蓋 00:00–20:37；每段附 1–2 行短描述與本機完整影片對應縮圖。
+- 播放進度跨越 Clip 邊界時，同步切換時間軸與右側清單選中狀態。
+
+- Concert 的 10 個 Clip 改為各帶 1–3 個相關 Tag（跨分類合計），以多標籤資料取代單一 Tag；清單與時間軸同步顯示所有 Tag。分類篩選與數量改依任一 Tag 所屬分類匹配，同一 Clip 在單一分類僅計一次；Tag 依字幕內容選取，未辨識的團名、曲名、表演型態與曲風不補入。
+
+- 依使用者要求，Concert 展示資料的五個 Tag Categories 平均分散，各涵蓋 4 個 Clip；每段仍維持 1–3 個 Tag。此次標籤為介面展示用 Mock 分配，曲風、表演型態與 Title 類型尚未經影音驗證；不視為真實 AI 分析或正式內容判定。
+
+- Concert 時間軸的多分類 Clip 色塊改為由左至右的平滑漸層，依各 Tag 所屬分類色等距混合；單一分類維持純色。同分類不重複加入色階，分類篩選時保留完整漸層並沿用非相符片段淡化效果。
+
+- 中文切換統一使用臺灣繁體：全站機器翻譯輸出經繁體與臺灣詞彙轉換，補齊 Concert Clip 標題、描述、分類與曲風的繁體對照。
+- 依使用者調整取消 Concert 時間軸漸層，改以每段第一個 Tag 所屬分類的固定純色呈現；多分類 Tag 保留。
+- Concert 的 Tag Categories 支援 Hover 與鍵盤 Focus 浮層，列出範本設定中該分類的全部子 Tag；點擊分類仍維持片段篩選。
+
+- 分類浮層移除重複分類標題，改用可互動 Popover；支援游標移入與鍵盤聚焦，移入浮層可繼續操作。子 Tag 可多選，右側 Clip 清單、命中 Tag 樣式、數量與時間軸淡化同步連動。同分類子 Tag 使用 OR，跨分類以 OR 合併；再次點選取消，取消全部子 Tag 恢復該分類篩選，「全部分類」清除全部條件；零結果顯示提示。
+
+- 分類 Popover 的每個子 Tag 加入符合 Clip 數量，以「Tag (數量)」顯示；統計以完整 10 段資料為基準，零命中顯示 (0)。修正翻譯監聽器沿用舊文字造成動態 Clip 數量回復的問題，篩選數量隨列表更新。
+
+### 2026-11-11 | V4 發布整理
+
+- 將本次 Concert、Assets Detail、AI Generate 流程與標籤互動調整納入 V4；更新版本摘要與 Concert 線上預覽網址。
+- 修正 Detail 導覽拆分後的重複條件判斷，確保正式 TypeScript 建置可通過。

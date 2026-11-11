@@ -1,5 +1,5 @@
 import * as React from "react"
-import AddVideo from "./AddVideo"
+import AddVideo, { type AnalyzeVideoItem } from "./AddVideo"
 import VideoPickerDialog from "./VideoPickerDialog"
 import TemplateSettings from "./TemplateSettings"
 import { readTemplates } from "./template-settings"
@@ -13,15 +13,14 @@ import { readAssistantRegistry } from "./assistant-registry"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   ArrowLeft,
+  CheckCircle2,
   Clapperboard,
-  CircleHelp,
   FileText,
   Heart,
   LayoutGrid,
-  MoreHorizontal,
+  LoaderCircle,
   Plus,
   Pencil,
-  Play,
   RefreshCw,
   Search,
   Smile,
@@ -145,6 +144,9 @@ function pageFromHash(): Page {
   )
     return hash
   return "video"
+}
+function detailTabFromHash(): "AI Chapter" | "AI Metadata" {
+  return window.location.hash.endsWith("/ai-metadata") ? "AI Metadata" : "AI Chapter"
 }
 
 function StatusBadge({ status, locale = "en" }: { status: AnalysisStatus; locale?: Locale }) {
@@ -284,151 +286,85 @@ function metadataGroupsFor(video: Video): MetadataGroup[] {
 
 function MetadataGroupCard({ group, locale = "en" }: { group: MetadataGroup; locale?: Locale }) {
   const Icon = group.icon
-  const selected = group.choices.filter((choice) => choice.selected).length
+  const visibleTags = group.choices.map((choice, index) => ({ ...choice, occurrences: choice.selected ? Math.max(3, 7 - index) : choice.confidence && Number.parseInt(choice.confidence) >= 60 ? 3 : index < 3 ? 5 - index : 2 })).filter(choice => choice.occurrences >= 3)
   return (
-    <Card className="gap-0 py-0 shadow-sm">
-      <CardContent className="grid gap-4 p-4 xl:grid-cols-[220px_1fr]">
-        <div className="flex gap-3">
-          <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-          <div>
-            <h3 className="font-semibold">{group.label}</h3>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              {group.description}
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="mb-2 flex items-center justify-end gap-2 text-xs text-muted-foreground">
-            <span>
-              Selected {selected}/{group.choices.length}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={`More options for ${group.label}`}
-            >
-              <MoreHorizontal />
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {group.choices.map((choice) => (
-              <button
-                key={choice.label}
-                type="button"
-                aria-pressed={choice.selected}
-                className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs transition-colors ${choice.selected ? "bg-primary/10 font-medium text-primary" : "bg-muted text-muted-foreground hover:bg-accent"}`}
-              >
-                <span
-                  className={`size-3 rounded-full border ${choice.selected ? "border-primary bg-primary shadow-[inset_0_0_0_3px_var(--background)]" : "border-muted-foreground/50 bg-background"}`}
-                  aria-hidden="true"
-                />
-                {translateTag(locale, choice.label)}
-                {choice.confidence && (
-                  <span className="ml-0.5 tabular-nums">
-                    {choice.confidence}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
+    <Card className="gap-0 py-0 shadow-none">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2"><Icon className="size-4 text-muted-foreground" aria-hidden="true" /><h3 className="text-sm font-semibold">{group.label}</h3><span className="ml-auto text-xs text-muted-foreground">{visibleTags.length} tags</span></div>
+        <div className="mt-3 flex flex-wrap gap-2">{visibleTags.map(choice => <span key={choice.label} title={`Appears in ${choice.occurrences} AI Chapter clips`} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-foreground"><span>{translateTag(locale, choice.label)}</span><span className="text-[10px] text-muted-foreground">{choice.occurrences}</span></span>)}</div>
+        {!visibleTags.length && <p className="mt-3 text-xs text-muted-foreground">No tags appear in three or more AI Chapter clips.</p>}
       </CardContent>
     </Card>
   )
 }
 
-function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Metadata", chapterContent, locale = "en" }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale }) {
+function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Chapter", chapterContent, locale = "en" }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
-  const tabs = ["AI Metadata", "AI Chapter"]
+  const [assetName, setAssetName] = React.useState(() => localStorage.getItem(`kk-lab-asset-name-${video.id}`) || video.title)
+  const [nameSaved, setNameSaved] = React.useState(false)
+  const [analysisName] = React.useState(() => {
+    const timestamp = new Intl.DateTimeFormat("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date())
+    return `AI Analysis_V1 · ${timestamp}`
+  })
+  const tabs = ["AI Chapter", "AI Metadata"]
   const videoMetadataGroups = metadataGroupsFor(video)
-  const [showPlayer, setShowPlayer] = React.useState(false)
+  const [showStickyHeader, setShowStickyHeader] = React.useState(false)
+  const detailHeader = React.useRef<HTMLDivElement>(null)
   const t = (text: string) => translate(locale, text)
-  const videoSource = video.localVideo && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? `${import.meta.env.BASE_URL}${video.localVideo}` : null
+  const changeTab = (tab: string) => {
+    setActiveTab(tab)
+    if (backLabel === "Video Assets") window.history.pushState(null, "", `#detail/${video.id}/${tab === "AI Chapter" ? "ai-chapter" : "ai-metadata"}`)
+  }
+  const saveAssetName = () => {
+    const nextName = assetName.trim() || video.title
+    setAssetName(nextName)
+    localStorage.setItem(`kk-lab-asset-name-${video.id}`, nextName)
+    setNameSaved(true)
+    window.setTimeout(() => setNameSaved(false), 1500)
+  }
+  React.useEffect(() => {
+    if (backLabel !== "Video Assets") return
+    const syncTab = () => setActiveTab(window.location.hash.endsWith("/ai-metadata") ? "AI Metadata" : "AI Chapter")
+    window.addEventListener("popstate", syncTab)
+    window.addEventListener("hashchange", syncTab)
+    return () => { window.removeEventListener("popstate", syncTab); window.removeEventListener("hashchange", syncTab) }
+  }, [backLabel])
+  React.useEffect(() => {
+    const target = detailHeader.current
+    if (!target) return
+    const observer = new IntersectionObserver(([entry]) => setShowStickyHeader(!entry.isIntersecting))
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [])
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Back to ${backLabel}`}
-            onClick={onBack}
-          >
-            <ArrowLeft />
-          </Button>
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <button
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={onBack}
-                >
-                  {backLabel}
-                </button>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{video.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+      <section className="-mx-4 -mt-7 border-b bg-white px-4 pt-4 pb-4 sm:-mx-7 sm:px-7">
+      <div ref={detailHeader} className="flex flex-wrap items-stretch gap-5 py-3 xl:flex-nowrap">
+        <div className="flex min-w-0 shrink-0 items-center gap-4">
+          <VideoThumbnail video={video} className="w-36 sm:w-40" />
+          <div className="min-w-0 space-y-2"><div className="flex items-center gap-2"><Input value={assetName} onChange={event => { setAssetName(event.target.value); setNameSaved(false) }} onBlur={saveAssetName} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur() }} maxLength={120} aria-label="Video Asset name" className="h-9 w-56 bg-white px-3 text-sm font-semibold shadow-none transition-colors hover:border-slate-400 sm:text-base" />{nameSaved && <span role="status" className="text-xs text-emerald-600">Saved</span>}</div><p className="text-xs text-muted-foreground">ID {video.id} · {video.type} · {video.duration}</p></div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="ml-auto flex shrink-0 flex-col items-end justify-center gap-2">
+          <StatusBadge status={video.status} locale={locale} />
+          <div className="flex flex-wrap items-center gap-2">
           <Select defaultValue="v1">
-            <SelectTrigger aria-label="Select version" className="w-48">
+            <SelectTrigger aria-label="Select version" className="w-72">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="v1">v1.0 (2025-03-10 10:30)</SelectItem>
+              <SelectItem value="v1">{analysisName}</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button>
             <RefreshCw />
             Re-analyze
           </Button>
-          <Button>Save</Button>
-          <Button variant="ghost" size="icon-sm" aria-label="More actions">
-            <MoreHorizontal />
-          </Button>
+          </div>
         </div>
       </div>
-      {showPlayer && videoSource && <div role="dialog" aria-modal="true" aria-label={`${video.title} video player`} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowPlayer(false)}><div className="w-full max-w-5xl" onClick={event => event.stopPropagation()}><div className="mb-2 flex items-center justify-between text-white"><h2 className="font-semibold">{video.title}</h2><Button variant="secondary" onClick={() => setShowPlayer(false)}>Close</Button></div><video controls autoPlay playsInline preload="metadata" poster={video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : undefined} src={videoSource} className="aspect-video w-full rounded-lg bg-black" /></div></div>}
-      <Card className="mb-3 overflow-hidden bg-card/90 shadow-sm">
-        <CardContent className="flex flex-col gap-5 p-4 lg:flex-row lg:items-center">
-          <div className="relative w-full shrink-0 lg:w-56">
-            <VideoThumbnail video={video} large />
-            <Button
-              variant="secondary"
-              size="icon"
-              aria-label={videoSource ? `Play ${video.title}` : video.externalShareUrl ? `Open ${video.title} on NAS` : `Video unavailable for ${video.title}`}
-              title={!videoSource && video.externalShareUrl ? "Open NAS sharing page" : undefined}
-              disabled={!videoSource && !video.externalShareUrl}
-              onClick={() => { if (videoSource) setShowPlayer(true); else if (video.externalShareUrl) window.open(video.externalShareUrl, "_blank", "noopener,noreferrer") }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/85"
-            >
-              <Play className="fill-current" />
-            </Button>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                {video.title}
-              </h1>
-              <StatusBadge status={video.status} />
-            </div>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-              <span>ID&nbsp; {video.id}</span>
-              <span>{video.type}</span>
-              {video.id === "TELA-6825" && <span>Food</span>}
-              <span>{video.year}</span>
-              <span>{video.duration}</span>
-              {video.id === "TELA-6825" && <span>SP</span>}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-5">
+      {showStickyHeader && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 sm:px-7"><div className="flex min-w-0 items-center gap-2"><Button variant="ghost" size="icon-sm" aria-label={`Back to ${backLabel}`} onClick={onBack}><ArrowLeft /></Button><Breadcrumb><BreadcrumbList><BreadcrumbItem><button className="text-muted-foreground hover:text-foreground" onClick={onBack}>{backLabel}</button></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>{assetName}</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div className="flex shrink-0 items-center gap-2"><Select defaultValue="v1"><SelectTrigger aria-label="Select version" className="w-72 bg-white/50"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="v1">{analysisName}</SelectItem></SelectContent></Select><Button><RefreshCw />Re-analyze</Button></div></div></div>}
+      </section>
+      <Tabs value={activeTab} onValueChange={changeTab} className="mt-3 mb-5">
         <TabsList
           aria-label="Video detail sections"
           className="h-12 w-full justify-start gap-8 rounded-none bg-transparent p-0"
@@ -445,49 +381,11 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
         </TabsList>
       </Tabs>
       {activeTab === "AI Metadata" ? (
-        <div className="grid gap-4 xl:grid-cols-[1.48fr_1fr]">
-          <section className="space-y-3">
-            <Card className="shadow-sm">
-              <CardHeader className="flex-row items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    AI Metadata{" "}
-                    <CircleHelp className="size-4 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription className="mt-1 max-w-2xl">
-                    Extract and analyze key metadata from the video, including
-                    tags from this video’s template for search and discovery.
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm">
-                  <Sparkles />
-                  AI Generate from Clip
-                </Button>
-              </CardHeader>
-            </Card>
-            {videoMetadataGroups.map((group) => (
-              <MetadataGroupCard key={group.label} group={group} locale={locale} />
-            ))}
-            <Card className="shadow-sm">
-              <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
-                <div className="flex gap-3">
-                  <FileText className="size-5" />
-                  <h3 className="font-semibold">
-                    {t("Metadata Summary")}
-                    <br />
-                    ({t(video.title === "Concert" ? "Subtitle-based" : "AI Generated")})
-                  </h3>
-                </div>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {t(video.title === "Concert" ? "The supplied subtitles cover pre-show nerves, rehearsal, audience reflections, a group name mention, and an onstage song. Mood and topic clips are linked to their source timecodes. The group name, performance type, and music genre still need review." : "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。")}
-                </p>
-              </CardContent>
-            </Card>
-          </section>
-          <aside className="space-y-4">
+        <div className="grid items-start gap-4 xl:grid-cols-[1.05fr_1fr]">
+          <section aria-labelledby="content-overview-title">
             <Card className="shadow-sm">
               <CardHeader className="flex-row items-center justify-between">
-                <CardTitle>{t("Content Overview")}</CardTitle>
+                <CardTitle id="content-overview-title">{t("Content Overview")}</CardTitle>
                 <Button variant="outline" size="sm">
                   <Pencil />
                   {t("Edit")}
@@ -508,83 +406,21 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
                   </div>
                 </div>
                 <dl className="mt-5 grid grid-cols-2 gap-4 border-t pt-4 text-sm">
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Language</dt>
-                    <dd className="mt-1 font-medium">Japanese</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Subtitles</dt>
-                    <dd className="mt-1 font-medium">
-                      {video.title === "Concert" ? "Japanese" : "Japanese · Traditional Chinese · English"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Duration</dt>
-                    <dd className="mt-1 font-medium">{video.duration}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">
-                      Production Year
-                    </dt>
-                    <dd className="mt-1 font-medium">{video.year}</dd>
-                  </div>
+                  <div><dt className="text-xs text-muted-foreground">Language</dt><dd className="mt-1 font-medium">Japanese</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Subtitles</dt><dd className="mt-1 font-medium">{video.title === "Concert" ? "Japanese" : "Japanese · Traditional Chinese · English"}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Duration</dt><dd className="mt-1 font-medium">{video.duration}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Production Year</dt><dd className="mt-1 font-medium">{video.year}</dd></div>
                 </dl>
               </CardContent>
             </Card>
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  AI Metadata Sources and Basis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-3 flex gap-1 rounded-lg bg-muted p-1">
-                  <Button size="sm" className="flex-1">
-                    Synopsis
-                  </Button>
-                  <Button variant="ghost" size="sm" className="flex-1">
-                    Scene Analysis
-                  </Button>
-                  <Button variant="ghost" size="sm" className="flex-1">
-                    Transcript
-                  </Button>
-                </div>
-                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                  {video.title === "Concert" ? <>
-                    <li>Concert.srt provides the timecodes and dialogue for each clip.</li>
-                    <li>Descriptions and confirmed tags are tied to the subtitle excerpt.</li>
-                    <li>Group name, performance type, and music genre require manual review.</li>
-                  </> : <>
-                    <li>Follows Inogashira Goro's journey to explore unique local cuisine.</li>
-                    <li>Reflects real dining environments and cooking processes.</li>
-                    <li>Conveys the protagonist's inner thoughts and love for food.</li>
-                  </>}
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Relevant Similar Content
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-3 gap-2">
-                <div>
-                  <VideoThumbnail video={video} />
-                  <p className="mt-1 text-xs text-muted-foreground">Food</p>
-                </div>
-                <div>
-                  <VideoThumbnail video={videos[1]} />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Local Cuisine
-                  </p>
-                </div>
-                <div>
-                  <VideoThumbnail video={videos[2]} />
-                  <p className="mt-1 text-xs text-muted-foreground">Travel</p>
-                </div>
-              </CardContent>
-            </Card>
+          </section>
+          <aside aria-labelledby="tag-categories-title" className="space-y-3">
+            <div className="px-1">
+              <h2 id="tag-categories-title" className="font-semibold">Tag Categories</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Only tags found in three or more AI Chapter clips are shown.</p>
+            </div>
+            {videoMetadataGroups.map(group => <MetadataGroupCard key={group.label} group={group} locale={locale} />)}
+            {!videoMetadataGroups.length && <Card className="p-5 text-sm text-muted-foreground shadow-none">No Tag Categories are available for this video template.</Card>}
           </aside>
         </div>
       ) : (
@@ -605,6 +441,8 @@ function Workspace() {
   const [statusFilter, setStatusFilter] = React.useState("all")
   const [locale, setLocale] = React.useState<Locale>("en")
   const [assetPickerOpen, setAssetPickerOpen] = React.useState(false)
+  const [createdAssets, setCreatedAssets] = React.useState<Video[]>([])
+  const [analysisJob, setAnalysisJob] = React.useState<{ video: Video; progress: number; status: "processing" | "completed" } | null>(null)
   const [selected, setSelected] = React.useState<Video | null>(() => {
     if (pageFromHash() !== "detail") return null
     const id = window.location.hash.slice(1).split("/")[1]
@@ -616,6 +454,16 @@ function Workspace() {
   useSiteMachineTranslation(locale)
 
   React.useEffect(() => { window.scrollTo(0, 0) }, [page])
+
+  React.useEffect(() => {
+    if (!analysisJob || analysisJob.status !== "processing") return
+    const timer = window.setInterval(() => setAnalysisJob(current => {
+      if (!current || current.status !== "processing") return current
+      const progress = Math.min(100, current.progress + 10)
+      return { ...current, progress, status: progress === 100 ? "completed" : "processing" }
+    }), 500)
+    return () => window.clearInterval(timer)
+  }, [analysisJob])
 
   React.useEffect(() => {
     const sync = () => { const items = readAssistantRegistry(); setAssistantRegistry(items); setLastAssistant(previous => items.some(item => item.id === previous && item.status !== "Archived") ? previous : items.find(item => item.status !== "Archived")?.id || "") }
@@ -645,6 +493,7 @@ function Workspace() {
     window.history.pushState(null, "", `#${next}`)
     if (isMobile) setOpenMobile(false)
   }
+  const allVideos = [...createdAssets, ...videos].map(video => analysisJob?.video.id === video.id ? { ...video, status: analysisJob.status === "completed" ? "Completed" as const : "Analyzing" as const } : video)
 
   const navigateDiscovery = (section: string) => {
     if (!discoverySections.some(item => item.id === section)) return
@@ -673,8 +522,30 @@ function Workspace() {
     setSelected(video)
     setDetailOrigin(origin)
     setPage("detail")
-    window.history.pushState(null, "", origin === "examples" ? `#detail/${video.id}/examples` : `#detail/${video.id}`)
+    window.history.pushState(null, "", origin === "examples" ? `#detail/${video.id}/examples` : `#detail/${video.id}/ai-chapter`)
     if (isMobile) setOpenMobile(false)
+  }
+  const startAnalysis = (item: AnalyzeVideoItem) => {
+    const assetId = item.key.startsWith("asset:") ? item.key.slice(6) : `UPL-${Date.now().toString().slice(-6)}`
+    const existing = allVideos.find(video => video.id === assetId)
+    const video: Video = existing ?? {
+      id: assetId,
+      title: item.name.replace(/\.[^.]+$/, ""),
+      type: "Documentary",
+      duration: "--:--",
+      year: new Date().getFullYear(),
+      status: "Analyzing",
+      color: 2,
+    }
+    if (!existing) setCreatedAssets(current => [video, ...current])
+    setAnalysisJob({ video, progress: 8, status: "processing" })
+    navigate("video")
+  }
+  const openAnalyzedAsset = () => {
+    if (!analysisJob) return
+    const video = allVideos.find(item => item.id === analysisJob.video.id) ?? { ...analysisJob.video, status: "Completed" as const }
+    setAnalysisJob(null)
+    openDetail(video)
   }
   const openExample = (exampleId: string) => {
     if (exampleId === "chapter/01") {
@@ -692,7 +563,7 @@ function Workspace() {
     openDetail(videos[0], "examples")
   }
 
-  const filtered = videos.filter((video) => {
+  const filtered = allVideos.filter((video) => {
     const text = query.trim().toLocaleLowerCase()
     return (
       (!text ||
@@ -756,11 +627,12 @@ function Workspace() {
         <header className="flex h-16 items-center justify-between gap-3 border-b bg-background/80 px-4 sm:px-7">
           <div className="flex min-w-0 items-center gap-2">
             <SidebarTrigger className="md:hidden" />
-            <Breadcrumb>
+            {page === "detail" && selected && <><Button variant="ghost" size="icon-sm" aria-label={`Back to ${detailOrigin === "examples" ? "Examples" : "Video Assets"}`} onClick={() => navigate(detailOrigin)}><ArrowLeft /></Button><Breadcrumb><BreadcrumbList><BreadcrumbItem><button className="text-muted-foreground hover:text-foreground" onClick={() => navigate(detailOrigin)}>{t(detailOrigin === "examples" ? "Examples" : "Video Assets")}</button></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>{selected.title}</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></>}
+            {page !== "detail" && <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {t(page === "detail" ? "Video Assets" : (page === "actor" || page === "comedy") ? "Examples" : labels[page])}
+                    {t((page === "actor" || page === "comedy") ? "Examples" : labels[page])}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
                 {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
@@ -774,7 +646,7 @@ function Workspace() {
                   </>
                 )}
               </BreadcrumbList>
-            </Breadcrumb>
+            </Breadcrumb>}
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-3" aria-label="Machine translation language" data-no-translate><button type="button" aria-pressed={locale === "en"} onClick={() => setLocale("en")} className={`py-1 text-xs transition-colors ${locale === "en" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>EN</button><button type="button" aria-pressed={locale === "zh"} onClick={() => setLocale("zh")} className={`py-1 text-xs transition-colors ${locale === "zh" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>中</button><button type="button" aria-pressed={locale === "ja"} onClick={() => setLocale("ja")} className={`py-1 text-xs transition-colors ${locale === "ja" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>日</button></div>
@@ -785,8 +657,8 @@ function Workspace() {
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} locale={locale} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} locale={locale} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
-            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} locale={locale} />
+          {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} locale={locale} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} onGenerate={startAnalysis} locale={locale} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
+            <ContentDetailTemplate key={`content-detail-${selected.id}`} video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} initialTab={detailOrigin === "examples" ? "AI Chapter" : detailTabFromHash()} locale={locale} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} locale={locale} />
           ) : page === "comedy" ? (
@@ -991,6 +863,7 @@ function Workspace() {
             </>
           )}
         </div>
+        {analysisJob && <aside role="status" aria-live="polite" className="fixed right-5 bottom-5 z-40 w-[min(340px,calc(100vw-40px))] rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm backdrop-blur-md"><div className="flex items-start gap-2.5">{analysisJob.status === "processing" ? <LoaderCircle className="mt-0.5 size-4 shrink-0 animate-spin text-slate-500" /> : <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />}<div className="min-w-0 flex-1"><h2 className="text-sm font-medium">{analysisJob.status === "processing" ? "AI Generate in progress" : "AI analysis completed"}</h2><p className="mt-1 truncate text-xs text-muted-foreground">{analysisJob.video.title}</p>{analysisJob.status === "processing" ? <div className="mt-3"><div className="mb-1.5 flex justify-between text-xs text-muted-foreground"><span>Analyzing</span><span>{analysisJob.progress}%</span></div><div className="h-1 overflow-hidden rounded-full bg-slate-200/70"><span className="block h-full rounded-full bg-slate-600 transition-[width] duration-500" style={{ width: `${analysisJob.progress}%` }} /></div></div> : <button type="button" onClick={openAnalyzedAsset} className="mt-3 text-sm font-medium text-slate-700 transition-colors hover:text-slate-950">View Asset →</button>}</div></div></aside>}
       </SidebarInset>
     </>
   )

@@ -1,3 +1,8 @@
+import { Converter } from "opencc-js/cn2t"
+
+const toTaiwanTraditional = Converter({ from: "cn", to: "twp" })
+export const normalizeTranslation = (locale: Locale, text: string) => locale === "zh" ? toTaiwanTraditional(text) : text
+
 export type Locale = "en" | "zh" | "ja"
 
 const translations: Record<Locale, Record<string, string>> = {
@@ -5,6 +10,40 @@ const translations: Record<Locale, Record<string, string>> = {
     "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。": "In Solitary Gourmet SP, Goro Inogashira samples local food in different cities. Authentic dining scenes and inner monologues reveal regional culture through a warm, restorative journey.",
   },
   zh: {
+    "No clips match the selected tags.": "沒有符合所選標籤的片段。",
+    "Concert": "演唱會",
+    "AI Chapter": "AI 章節",
+    "AI Metadata": "AI 中繼資料",
+    "Tag Categories": "標籤分類",
+    "All categories": "全部分類",
+    "Mood": "情緒",
+    "Topic": "主題",
+    "Title": "名稱",
+    "Performance Type": "表演型態",
+    "Music Genre": "音樂曲風",
+    "Back to Video Assets": "返回影片資產",
+    "Re-analyze": "重新分析",
+    "Full Concert": "完整演唱會",
+    "Venue and lift rehearsal": "場地探索與升降台彩排",
+    "Stage positions and cameras": "舞台走位與攝影機確認",
+    "Merchandise and pre-show mood": "周邊商品與演出前心情",
+    "An emotional rehearsal": "充滿情緒的彩排",
+    "Pre-show nerves and encore": "演出前的緊張與安可",
+    "Surrounded by the audience": "被觀眾包圍的幸福感",
+    "Nerves before day two": "第二天演出前的緊張",
+    "Practice and team encouragement": "練習與團隊打氣",
+    "Final backstage preparations": "後台最後準備",
+    "Song, thanks and closing moments": "歌曲、致謝與尾聲",
+    "Exploring the venue and testing the lift before the show.": "演出前探索場地，並測試升降台。",
+    "Checking entrances, cameras and directions around the stage.": "確認舞台入口、攝影機與各方向的走位。",
+    "Enjoying the merchandise, then talking about hunger and nerves.": "欣賞周邊商品，接著聊到飢餓感與演出前的緊張。",
+    "Practising vocals and sharing how close they feel to tears.": "練習演唱，並分享幾乎落淚的心情。",
+    "Encouraging each other, hearing encore calls and returning backstage.": "互相打氣、聽見安可聲，並回到後台。",
+    "Reflecting on the joy of seeing fans in every direction.": "分享在各個方向都能看見粉絲的喜悅。",
+    "Discussing missed lyrics, fatigue and staying focused on day two.": "聊到忘詞、疲勞，以及第二天如何保持專注。",
+    "Checking the routine again and encouraging each other before going on.": "上台前再次確認流程，並互相打氣。",
+    "Sharing last-minute reminders and support before the next performance.": "下一場演出前，互相提醒並給予支持。",
+    "A song segment followed by thanks, cheers and backstage reactions.": "演唱片段之後接續致謝、歡呼與後台反應。",
     "Video Assets": "影片資產",
     "AI Analyze": "AI 分析",
     Examples: "範例",
@@ -86,7 +125,7 @@ const translations: Record<Locale, Record<string, string>> = {
 }
 
 export function translate(locale: Locale, text: string) {
-  return translations[locale][text] ?? text
+  return normalizeTranslation(locale, translations[locale][text] ?? text)
 }
 
 const tagTranslations: Record<Locale, Record<string, string>> = {
@@ -98,6 +137,7 @@ const tagTranslations: Record<Locale, Record<string, string>> = {
     美食愛好者: "Food Lovers", 一般大眾: "General Audience", 中高年齡: "Mature Audience", 男性: "Men", 海外觀眾: "International Viewers", 家庭觀眾: "Family Audience", 古典: "Classical",
   },
   zh: {
+    Melody: "旋律", "J-Pop": "日本流行音樂", Ballad: "抒情歌曲", "Hip-Hop": "嘻哈",
     Laughter: "歡笑", Romance: "浪漫", Healing: "療癒", Tearful: "催淚", Scary: "驚悚", Relaxed: "放鬆", Family: "家庭", School: "校園", Workplace: "職場", "Technology / AI": "科技／AI", Sports: "運動", Food: "美食", "Anime / Pop Culture": "動漫／流行文化", History: "歷史",
     Name: "名稱", "Group Name": "團體名稱", "Team Name": "隊伍名稱", "Song Title": "歌曲名稱", Solo: "獨奏", Duet: "二重奏", Band: "樂團", Acoustic: "不插電", Medley: "組曲", Aggressive: "進攻型", Defensive: "防守型", Counterattack: "反擊", "Possession-based": "控球型", Technical: "技術型", Rock: "搖滾", Jazz: "爵士", 古典: "古典",
     邦画: "日本電影", 国内ドラマ: "日本電視劇", 洋画: "西洋電影", "海外・アジアドラマ": "海外／亞洲電視劇", アニメ: "動畫", "キッズ・特撮": "兒童／特攝",
@@ -110,5 +150,5 @@ const tagTranslations: Record<Locale, Record<string, string>> = {
 }
 
 export function translateTag(locale: Locale, tag: string) {
-  return tagTranslations[locale][tag] ?? tag
+  return normalizeTranslation(locale, tagTranslations[locale][tag] ?? tag)
 }

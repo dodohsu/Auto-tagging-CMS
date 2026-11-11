@@ -485,3 +485,9 @@
 
 - 將本次 Concert、Assets Detail、AI Generate 流程與標籤互動調整納入 V4；更新版本摘要與 Concert 線上預覽網址。
 - 修正 Detail 導覽拆分後的重複條件判斷，確保正式 TypeScript 建置可通過。
+
+### 2026-11-11 | Reality Show 共用 Concert 內頁
+
+- Reality Show 接上使用者提供的 YouTube 完整影片，時長 52:41；以提供的日文字幕按內容轉折切為 10 個連續 Clip，每段帶 1–3 個 Reality Show 範本 Tag。
+- 抽出共用 TaggedChapter，Concert 與 Reality 共用版面、完整影片與時間軸同步、灰色工作區 Resize、分類純色、子 Tag Popover 數量及列表篩選。
+- Reality 縮圖取自相同本機原片，補齊繁體標題、描述及 Highlights 翻譯；AI Metadata 摘要改為 Reality 字幕內容，分類 Tag 計數採實際 Clip 命中數。

@@ -798,7 +798,7 @@ function Workspace() {
                 </div>
                 <Button onClick={() => setAssetPickerOpen(true)}>
                   <Plus />
-                  Add Assets
+                  Add Asset
                 </Button>
               </div>
               <Card className="gap-0 overflow-hidden py-0 shadow-sm">

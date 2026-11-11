@@ -302,7 +302,10 @@ function MetadataGroupCard({ group, locale = "en" }: { group: MetadataGroup; loc
 
 function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Chapter", chapterContent, locale = "en" }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
-  const [assetName, setAssetName] = React.useState(() => localStorage.getItem(`kk-lab-asset-name-${video.id}`) || video.title)
+  const [assetName, setAssetName] = React.useState(() => {
+    const stored = localStorage.getItem(`kk-lab-asset-name-${video.id}`)
+    return video.id === "TRV-1129" && stored === "Reality Show" ? "Variety Show" : stored || video.title
+  })
   const [nameSaved, setNameSaved] = React.useState(false)
   const [analysisName] = React.useState(() => {
     const timestamp = new Intl.DateTimeFormat("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date())

@@ -11,9 +11,9 @@ React + Vite 的 CMS 示意網站。資料與索引流程為 Demo；資料儲存
 
 Concert 預覽：https://dodohsu.github.io/Auto-tagging-CMS/#detail/DOC-2048/ai-chapter
 
-Reality Show 預覽：https://dodohsu.github.io/Auto-tagging-CMS/#detail/TRV-1129/ai-chapter
+Variety Show 預覽：https://dodohsu.github.io/Auto-tagging-CMS/#detail/TRV-1129/ai-chapter
 
-Reality Show 共用 Concert 版面，依字幕切為 10 個連續 Clip，支援 Reality 範本 Tag、子 Tag 數量、篩選及播放連動。
+Variety Show 共用 Concert 版面，依字幕切為 10 個連續 Clip，支援 Variety Show 範本 Tag、子 Tag 數量、篩選及播放連動。
 
 ## 本機
 

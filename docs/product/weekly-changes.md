@@ -491,3 +491,8 @@
 - Reality Show 接上使用者提供的 YouTube 完整影片，時長 52:41；以提供的日文字幕按內容轉折切為 10 個連續 Clip，每段帶 1–3 個 Reality Show 範本 Tag。
 - 抽出共用 TaggedChapter，Concert 與 Reality 共用版面、完整影片與時間軸同步、灰色工作區 Resize、分類純色、子 Tag Popover 數量及列表篩選。
 - Reality 縮圖取自相同本機原片，補齊繁體標題、描述及 Highlights 翻譯；AI Metadata 摘要改為 Reality 字幕內容，分類 Tag 計數採實際 Clip 命中數。
+
+### 2026-11-11 | 綜藝節目範本命名
+
+- 依使用者指定，原 Reality Show 範本與影片名稱統一改為 Variety Show，中文為「綜藝節目」，日文為「バラエティ番組」。
+- 舊版瀏覽器儲存的範本名稱自動對應新名稱，保留使用者的分類、Tag 與 Prompt；影片名稱僅遷移舊預設名稱，自訂名稱仍保留。既有影片 ID、播放連結與片段資料沿用。

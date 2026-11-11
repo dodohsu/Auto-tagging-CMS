@@ -7,11 +7,15 @@ export type Locale = "en" | "zh" | "ja"
 
 const translations: Record<Locale, Record<string, string>> = {
   en: {
+    "Reality Show": "Variety Show",
+    "Full Reality Show": "Full Variety Show",
     "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。": "In Solitary Gourmet SP, Goro Inogashira samples local food in different cities. Authentic dining scenes and inner monologues reveal regional culture through a warm, restorative journey.",
   },
   zh: {
-    "Reality Show": "實境節目",
-    "Full Reality Show": "完整實境節目",
+    "Variety Show": "綜藝節目",
+    "Reality Show": "綜藝節目",
+    "Full Variety Show": "完整綜藝節目",
+    "Full Reality Show": "完整綜藝節目",
     "Highlight Type": "精彩片段類型",
     "Travis Japan revisit viewer-selected memorable quotes, name a new mascot, attempt a drawing word chain, and share announcements. This summary follows the supplied Japanese subtitles.": "Travis Japan 回顧觀眾選出的經典名言、為新吉祥物取名、挑戰繪畫接龍，並分享節目預告。本摘要依據提供的日文字幕產生。",
     "Live opening and autumn costumes": "直播開場與秋日造型",
@@ -107,6 +111,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food.": "井之頭五郎造訪不同地區，品嚐各地獨特料理。節目透過細膩的個人用餐旅程，呈現地方文化的豐富樣貌與人們對食物的真摯情感。",
   },
   ja: {
+    "Variety Show": "バラエティ番組",
+    "Full Variety Show": "バラエティ番組 全編",
+    "Reality Show": "バラエティ番組",
     "Video Assets": "動画アセット",
     "AI Analyze": "AI分析",
     Examples: "サンプル",

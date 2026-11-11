@@ -1,7 +1,7 @@
 import type { TaggedClip } from "./tagged-clips"
 
 // Continuous draft boundaries from Reality Show.srt; gaps stay within clips.
-// Tags use the Reality Show template. Visual transitions need final review.
+// Tags use the Variety Show template. Visual transitions need final review.
 export const realityClips: TaggedClip[] = [
   {
     "id": "reality-clip-01",

@@ -12,6 +12,11 @@ const translations: Record<Locale, Record<string, string>> = {
     "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。": "In Solitary Gourmet SP, Goro Inogashira samples local food in different cities. Authentic dining scenes and inner monologues reveal regional culture through a warm, restorative journey.",
   },
   zh: {
+    "Content Type": "內容類型",
+    "Music Performance": "音樂演出",
+    Variety: "綜藝",
+    Comedy: "喜劇",
+    Uncategorized: "未分類",
     "AI Analysis": "AI 分析",
     "AI analyzed": "已有 AI 分析結果",
     "Not analyzed": "尚未分析",
@@ -122,6 +127,11 @@ const translations: Record<Locale, Record<string, string>> = {
     "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food.": "井之頭五郎造訪不同地區，品嚐各地獨特料理。節目透過細膩的個人用餐旅程，呈現地方文化的豐富樣貌與人們對食物的真摯情感。",
   },
   ja: {
+    "Content Type": "コンテンツ種別",
+    "Music Performance": "音楽パフォーマンス",
+    Variety: "バラエティ",
+    Comedy: "コメディ",
+    Uncategorized: "未分類",
     "Variety Show": "バラエティ番組",
     "Full Variety Show": "バラエティ番組 全編",
     "Reality Show": "バラエティ番組",

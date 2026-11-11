@@ -357,7 +357,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
       <div ref={detailHeader} className="flex flex-wrap items-stretch gap-5 py-3 xl:flex-nowrap">
         <div className="flex min-w-0 shrink-0 items-center gap-4">
           <VideoThumbnail video={video} className="w-36 sm:w-40" />
-          <div className="min-w-0 space-y-2"><div className="flex items-center gap-2"><Input value={assetName} onChange={event => { setAssetName(event.target.value); setNameSaved(false) }} onBlur={saveAssetName} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur() }} maxLength={120} aria-label="Video Asset name" className="h-9 w-56 bg-white px-3 text-sm font-semibold shadow-none transition-colors hover:border-slate-400 sm:text-base" />{nameSaved && <span role="status" className="text-xs text-emerald-600">Saved</span>}</div><p className="text-xs text-muted-foreground">ID {video.id} · {video.type} · {video.duration}</p></div>
+          <div className="min-w-0 space-y-2"><div className="flex items-center gap-2"><Input value={assetName} onChange={event => { setAssetName(event.target.value); setNameSaved(false) }} onBlur={saveAssetName} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur() }} maxLength={120} aria-label="Video Asset name" className="h-9 w-56 bg-white px-3 text-sm font-semibold shadow-none transition-colors hover:border-slate-400 sm:text-base" />{nameSaved && <span role="status" className="text-xs text-emerald-600">Saved</span>}</div><p className="text-xs text-muted-foreground">ID {video.id} · {t(video.type)} · {video.duration}</p></div>
         </div>
         <div className="ml-auto flex shrink-0 flex-col items-end justify-center gap-2">
           <StatusBadge status={video.status} locale={locale} />
@@ -553,7 +553,7 @@ function Workspace() {
     const video: Video = existing ?? {
       id: assetId,
       title: item.name.replace(/\.[^.]+$/, ""),
-      type: "Documentary",
+      type: "Uncategorized",
       duration: "--:--",
       year: new Date().getFullYear(),
       status: "Analyzing",
@@ -731,7 +731,7 @@ function Workspace() {
                       <SelectItem value="all">{t("All types")}</SelectItem>
                       {types.map((type) => (
                         <SelectItem key={type} value={type}>
-                          {type}
+                          {t(type)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -768,7 +768,7 @@ function Workspace() {
                           {t("Video Assets")}
                         </TableHead>
                         <TableHead className="text-xs uppercase">
-                          {t("Type")}
+                          {t("Content Type")}
                         </TableHead>
                         <TableHead className="hidden text-xs uppercase md:table-cell">
                           {t("Duration")}
@@ -813,7 +813,7 @@ function Workspace() {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>{video.type}</TableCell>
+                          <TableCell>{t(video.type)}</TableCell>
                           <TableCell className="hidden tabular-nums md:table-cell">
                             {video.duration}
                           </TableCell>

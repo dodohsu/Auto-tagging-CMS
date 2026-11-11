@@ -526,3 +526,8 @@
 
 - Video Assets 新增 AI 分析欄位，已有結果顯示黑色圓圈勾選，尚無結果顯示「—」；是否有分析結果獨立於處理狀態。
 - 新增 UPL-0001 未分析示範影片，AI Chapter／AI Metadata 均顯示空狀態，不套入示意片段、摘要、Tag 或分析版本；可由 AI Analyze 開始分析。
+
+
+### 2026-11-11 | 內容類型文字調整
+
+- Type 欄位改為 Content Type（內容類型）；Concert 標示 Music Performance（音樂演出）、Variety Show 標示 Variety（綜藝）、Comedy Show 標示 Comedy（喜劇），未分析影片與新加入的影片預設 Uncategorized（未分類）。列表、篩選選項與內頁資訊同步使用新分類。

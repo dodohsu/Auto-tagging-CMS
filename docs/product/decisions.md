@@ -168,3 +168,10 @@
 - 依使用者指定，Reality Show 採 Concert 的內頁版面與互動；以字幕中的節目轉折劃分十段，完整覆蓋 00:00–52:41。
 - 邊界：01:41.820、07:28.060、13:30.200、19:06.700、27:28.900、35:58.380、43:19.900、46:47.440、48:57.760。
 - 標籤依字幕內容選取 Reality Show 的 Mood、Topic、Title、Highlight Type；未出現淘汰情節，不為平均分布補入 Elimination。切點為字幕草稿，影音細部轉場仍待複核。
+
+
+### 2026-11-11 | Comedy Show 新版 Video 內頁
+
+- 依使用者指定，Video Assets 的 Comedy Show 沿用 Concert／Variety Show 共用框架；既有十章字幕切點轉為十個連續 Clip，每段最多 3 個不同分類 Tag。
+- 原 Comedy Highlight 範例保留，避免覆蓋既有表演者與 Punchline 探索方案；新版入口為 detail/MOV-7310/ai-chapter。
+- 各 Tag 依段子內容選取，不為填滿分類強制加入未確認的表演者姓名或 Callback。

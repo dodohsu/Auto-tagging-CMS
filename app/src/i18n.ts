@@ -12,6 +12,9 @@ const translations: Record<Locale, Record<string, string>> = {
     "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。": "In Solitary Gourmet SP, Goro Inogashira samples local food in different cities. Authentic dining scenes and inner monologues reveal regional culture through a warm, restorative journey.",
   },
   zh: {
+    "Comedy Show": "喜劇節目",
+    "Full Comedy Show": "完整喜劇節目",
+    "A compilation of M-1 manzai performances featuring role reversals, wordplay, romantic misunderstandings and everyday situations. Ten continuous clips follow the existing Japanese subtitle analysis.": "M-1 漫才演出合集，以角色反轉、語言雙關、戀愛誤會與日常情境串連段子。沿用既有日文字幕分析，整理為 10 個連續 Clip。",
     "Variety Show": "綜藝節目",
     "Reality Show": "綜藝節目",
     "Full Variety Show": "完整綜藝節目",
@@ -168,6 +171,7 @@ const tagTranslations: Record<Locale, Record<string, string>> = {
     美食愛好者: "Food Lovers", 一般大眾: "General Audience", 中高年齡: "Mature Audience", 男性: "Men", 海外觀眾: "International Viewers", 家庭觀眾: "Family Audience", 古典: "Classical",
   },
   zh: {
+    Setup: "鋪陳", Boke: "裝傻", Tsukkomi: "吐槽", Punchline: "笑點", Callback: "前梗呼應", "Closing Punchline": "收尾笑點",
     Challenge: "挑戰", Reveal: "揭曉", Reaction: "反應", Conflict: "衝突", Elimination: "淘汰", "Heartwarming Moment": "暖心時刻",
     Melody: "旋律", "J-Pop": "日本流行音樂", Ballad: "抒情歌曲", "Hip-Hop": "嘻哈",
     Laughter: "歡笑", Romance: "浪漫", Healing: "療癒", Tearful: "催淚", Scary: "驚悚", Relaxed: "放鬆", Family: "家庭", School: "校園", Workplace: "職場", "Technology / AI": "科技／AI", Sports: "運動", Food: "美食", "Anime / Pop Culture": "動漫／流行文化", History: "歷史",

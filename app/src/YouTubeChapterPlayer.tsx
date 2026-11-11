@@ -16,7 +16,7 @@ type YouTubeApi = {
     height?: string
     host?: string
     playerVars?: Record<string, string | number>
-    events: { onReady: (event: PlayerEvent) => void; onStateChange: (event: PlayerEvent) => void; onError: () => void }
+    events: { onReady: (event: PlayerEvent) => void; onStateChange: (event: PlayerEvent) => void; onError: (event: { data: number }) => void }
   }) => YouTubePlayer
 }
 type YouTubeWindow = Window & { YT?: YouTubeApi; onYouTubeIframeAPIReady?: () => void }
@@ -49,18 +49,20 @@ function loadYouTubeApi() {
   return apiPromise
 }
 
-export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, title, autoPlay = false }: { videoId: string; time: number; onTimeChange: (seconds: number) => void; title: string; autoPlay?: boolean }) {
+export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, title, autoPlay = false, onUnavailable }: { videoId: string; time: number; onTimeChange: (seconds: number) => void; title: string; autoPlay?: boolean; onUnavailable?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const lastReportedTime = useRef<number | null>(null)
   const timeRef = useRef(time)
   const onTimeChangeRef = useRef(onTimeChange)
-  const [error, setError] = useState(false)
+  const onUnavailableRef = useRef(onUnavailable)
+  const [error, setError] = useState<number | null>(null)
 
   useEffect(() => {
+    onUnavailableRef.current = onUnavailable
     timeRef.current = time
     onTimeChangeRef.current = onTimeChange
-  }, [time, onTimeChange])
+  }, [time, onTimeChange, onUnavailable])
 
   useEffect(() => {
     let cancelled = false
@@ -100,10 +102,10 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
               }, 500)
             }
           },
-          onError: () => setError(true),
+          onError: event => { setError(event.data); onUnavailableRef.current?.() },
         },
       })
-    }).catch(() => { if (!cancelled) setError(true) })
+    }).catch(() => { if (!cancelled) { setError(-1); onUnavailableRef.current?.() } })
     return () => {
       cancelled = true
       if (poll !== undefined) window.clearInterval(poll)
@@ -120,6 +122,6 @@ export default function YouTubeChapterPlayer({ videoId, time, onTimeChange, titl
 
   return <div className="absolute inset-0 bg-neutral-950">
     <div ref={containerRef} className="absolute inset-0 [&>iframe]:block [&>iframe]:h-full [&>iframe]:w-full" title={title} />
-    {error && <div className="absolute inset-0 grid place-items-center bg-neutral-950 p-4 text-center text-sm text-white"><a className="underline" href={`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${Math.floor(time)}s`} target="_blank" rel="noreferrer">播放器無法載入 · 在 YouTube 開啟影片</a></div>}
+    {error !== null && <div className="absolute inset-0 grid place-items-center bg-neutral-950 p-4 text-center text-sm text-white"><a className="underline" href={`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${Math.floor(time)}s`} target="_blank" rel="noreferrer">{error === 101 || error === 150 ? "YouTube 限制此影片嵌入播放" : "播放器無法載入"} · 在 YouTube 開啟影片</a></div>}
   </div>
 }

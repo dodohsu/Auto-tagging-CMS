@@ -6,6 +6,8 @@ import { readTemplates } from "./template-settings"
 import AIChapter from "./AIChapter"
 import ConcertChapter from "./ConcertChapter"
 import RealityChapter from "./RealityChapter"
+import ComedyChapter from "./ComedyChapter"
+import { comedyShowClips } from "./comedy-show-clips"
 import { realityClips } from "./reality-clips"
 import AISearchMVP from "./AISearchMVP"
 import ExamplesPage from "./ExamplesPage"
@@ -278,11 +280,12 @@ const templateCategoryIcons: Record<string, typeof Heart> = {
 function metadataGroupsFor(video: Video): MetadataGroup[] {
   if (video.id === "TELA-6825") return metadataGroups
   const template = readTemplates().find(item => item.name === video.title)
+  const taggedClips = video.id === "TRV-1129" ? realityClips : video.id === "MOV-7310" ? comedyShowClips : null
   return template?.categories.filter(category => category.enabled).map(category => ({
     label: category.name,
     description: `Default tags for ${category.name.toLowerCase()} in the ${template.name} template.`,
     icon: templateCategoryIcons[category.name] ?? Sparkles,
-    choices: category.tags.map(label => ({ label, ...(video.id === "TRV-1129" ? { occurrences: realityClips.filter(clip => clip.tags.some(tag => tag.category === category.name && tag.label === label)).length } : {}) })),
+    choices: category.tags.map(label => ({ label, ...(taggedClips ? { occurrences: taggedClips.filter(clip => clip.tags.some(tag => tag.category === category.name && tag.label === label)).length } : {}) })),
   })) ?? []
 }
 
@@ -402,17 +405,17 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
                   <div>
                     <Badge variant="secondary" className="mb-2">
                       <Sparkles />
-                      {t((video.id === "DOC-2048" || video.id === "TRV-1129") ? "Subtitle-based" : "AI Generated")}
+                      {t((video.id === "DOC-2048" || video.id === "TRV-1129" || video.id === "MOV-7310") ? "Subtitle-based" : "AI Generated")}
                     </Badge>
                     <h3 className="font-semibold">{t("Synopsis")}</h3>
                     <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                      {t(video.id === "TRV-1129" ? "Travis Japan revisit viewer-selected memorable quotes, name a new mascot, attempt a drawing word chain, and share announcements. This summary follows the supplied Japanese subtitles." : video.title === "Concert" ? "Performers explore the venue, prepare backstage, reflect on the audience, and sing onstage. This summary follows the supplied Japanese subtitles." : "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food.")}
+                      {t(video.id === "MOV-7310" ? "A compilation of M-1 manzai performances featuring role reversals, wordplay, romantic misunderstandings and everyday situations. Ten continuous clips follow the existing Japanese subtitle analysis." : video.id === "TRV-1129" ? "Travis Japan revisit viewer-selected memorable quotes, name a new mascot, attempt a drawing word chain, and share announcements. This summary follows the supplied Japanese subtitles." : video.title === "Concert" ? "Performers explore the venue, prepare backstage, reflect on the audience, and sing onstage. This summary follows the supplied Japanese subtitles." : "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food.")}
                     </p>
                   </div>
                 </div>
                 <dl className="mt-5 grid grid-cols-2 gap-4 border-t pt-4 text-sm">
                   <div><dt className="text-xs text-muted-foreground">Language</dt><dd className="mt-1 font-medium">Japanese</dd></div>
-                  <div><dt className="text-xs text-muted-foreground">Subtitles</dt><dd className="mt-1 font-medium">{(video.id === "DOC-2048" || video.id === "TRV-1129") ? "Japanese" : "Japanese · Traditional Chinese · English"}</dd></div>
+                  <div><dt className="text-xs text-muted-foreground">Subtitles</dt><dd className="mt-1 font-medium">{(video.id === "DOC-2048" || video.id === "TRV-1129" || video.id === "MOV-7310") ? "Japanese" : "Japanese · Traditional Chinese · English"}</dd></div>
                   <div><dt className="text-xs text-muted-foreground">Duration</dt><dd className="mt-1 font-medium">{video.duration}</dd></div>
                   <div><dt className="text-xs text-muted-foreground">Production Year</dt><dd className="mt-1 font-medium">{video.year}</dd></div>
                 </dl>
@@ -429,7 +432,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
           </aside>
         </div>
       ) : (
-        chapterContent ?? (video.id === "DOC-2048" ? <ConcertChapter video={video} /> : video.id === "TRV-1129" ? <RealityChapter video={video} /> : <AIChapter key={video.id} video={video} />)
+        chapterContent ?? (video.id === "DOC-2048" ? <ConcertChapter video={video} /> : video.id === "TRV-1129" ? <RealityChapter video={video} /> : video.id === "MOV-7310" ? <ComedyChapter video={video} /> : <AIChapter key={video.id} video={video} />)
       )}
     </div>
   )

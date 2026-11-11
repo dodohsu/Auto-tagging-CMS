@@ -496,3 +496,16 @@
 
 - 依使用者指定，原 Reality Show 範本與影片名稱統一改為 Variety Show，中文為「綜藝節目」，日文為「バラエティ番組」。
 - 舊版瀏覽器儲存的範本名稱自動對應新名稱，保留使用者的分類、Tag 與 Prompt；影片名稱僅遷移舊預設名稱，自訂名稱仍保留。既有影片 ID、播放連結與片段資料沿用。
+
+
+### 2026-11-11 | Comedy Show 套用新版 Video 內頁
+
+- Comedy Show（MOV-7310）套用 Concert／Variety Show 共用內頁，接上指定 YouTube 影片，片長修正為 1:46:29。
+- 沿用既有字幕分析的十個連續章節作為新版 Clip；各段帶 3 個 Comedy 範本 Tag，支援分類色塊、子 Tag Popover、數量、篩選與播放連動。縮圖取自使用者提供的原片。
+- 保留原 Comedy Highlight 範例與 47 個 Punchline 候選；新版標籤與切點仍為字幕編輯草稿，待影音複核。
+
+
+### 2026-11-11 | 縮圖遮罩與 Comedy 播放備援
+
+- 移除 Video 縮圖的裝飾偽元素遮罩，保留片長標示。
+- Comedy 的 YouTube 嵌入回傳錯誤 150；本機遇到嵌入錯誤時自動播放使用者已提供的 MP4，維持 Clip 與時間軸同步。YouTube 仍為線上來源，原片不加入 Git。

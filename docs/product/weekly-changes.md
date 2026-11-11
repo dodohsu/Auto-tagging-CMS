@@ -403,3 +403,7 @@
 - 頁面標題操作捲出畫面後，頂部顯示透明毛玻璃 Action Bar，持續提供 Cancel 與 AI Generate 操作。
 - Analyze name Card 暫時隱藏；系統仍以 `AI Analysis_V1 · YYYY-MM-DD HH:mm` 產生預設名稱供固定 Action Bar 顯示。
 - 下捲後的固定 Action Bar 左側提供可直接編輯的名稱 Text field，不顯示欄位標題。
+- 更新 V4 Video Template 預設 Tags：Concert 的 Performance Type 與 Music Genre、Comedy Show 的 Highlight Type、Sports Event 的 Event Type。
+- Reality Show 的 Highlight Type 新增 Challenge、Reveal、Reaction、Conflict、Elimination、Heartwarming Moment。
+- Nostalgia Collection 的 Highlight Type 新增 Archive Footage、Then and Now、Reunion、Tribute、Milestone、Memory Lane；Sports Event 的 Highlight Type 維持待確認。
+- Sports Event 新增 Scoring Type Tag Category：Three-pointer、Free Throw、Goal、Home Run、Ace。

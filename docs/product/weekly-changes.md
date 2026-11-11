@@ -395,3 +395,5 @@
 ### 2026-11-11 | AI Metadata 欄位調整
 
 - AI Metadata 暫時移除 Video-level tags 區塊，保留 Description 設定。
+- 卡片順序維持 Subtitle、AI Chapter、AI Metadata。
+- Cancel 與 AI Generate 操作移至頁面大標題右側，移除獨立 Toolbar Panel 與選取數量說明。

@@ -107,7 +107,7 @@ export default function AddVideo({ onBack, title = "Add Content", initialPickerO
   }
   return <div className="mx-auto max-w-[1200px] pb-5">
     {title !== "AI Analyze" && <button onClick={onBack} className="mb-5 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} />Back to Video Assets</button>}
-    <div className="mb-7 flex flex-wrap items-start gap-3"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div></div>
+    <div className="mb-7 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div><div className="flex gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(400px,1.15fr)]">
       <div className="space-y-5 xl:sticky xl:top-6">
         <Card className="gap-0 rounded-xl p-6 shadow-none">
@@ -139,7 +139,6 @@ export default function AddVideo({ onBack, title = "Add Content", initialPickerO
         <Analysis locale={locale} />
       </div>
     </div>
-    <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-white px-5 py-4"><div><p className="text-sm font-medium">{items.length} {items.length === 1 ? "video" : "videos"} selected</p><p className="mt-1 text-sm text-slate-400">Set up once, apply to every video. You can review and refine AI results after processing.</p></div><div className="flex gap-3"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>
     {review && <div role="status" className="mt-4 flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-5 text-base text-blue-900"><Check size={18} className="shrink-0" /><div><p className="font-medium">Your batch is ready for review</p><p className="mt-1 text-sm">{items.length} videos selected. This preview stops before upload; no files or links have been sent for processing.</p></div></div>}
   </div>
 }

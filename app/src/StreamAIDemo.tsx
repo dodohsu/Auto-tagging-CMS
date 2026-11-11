@@ -122,7 +122,8 @@ function sectionFromHash() {
   const section = parts.length >= 3 ? parts[2] : "list"
   return discoverySections.some(item => item.id === section) ? section : "list"
 }
-const types = [...new Set(videos.map((video) => video.type))]
+const hiddenVideoIds = new Set(["TELA-6825", "ANI-0456", "DOC-8803"])
+const types = [...new Set(videos.filter(video => !hiddenVideoIds.has(video.id)).map((video) => video.type))]
 const statuses: AnalysisStatus[] = [
   "Uploading",
   "Analyzing",
@@ -572,6 +573,7 @@ function Workspace() {
   }
 
   const filtered = allVideos.filter((video) => {
+    if (hiddenVideoIds.has(video.id)) return false
     const text = query.trim().toLocaleLowerCase()
     return (
       (!text ||

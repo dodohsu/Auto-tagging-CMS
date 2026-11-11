@@ -515,3 +515,8 @@
 
 - Comedy Show Video 內頁及既有 Comedy Highlight 範例改接使用者提供的新 YouTube 影片 qrdyfziYyHk；既有字幕切點與 Tag 沿用。
 - 更新時 YouTube 回報影片處理中；本機維持原片播放備援。
+
+
+### 2026-11-11 | 暫時精簡 Video Assets 列表
+
+- 依使用者指定，列表暫時隱藏《孤独のグルメ SP》、Nostalgia Collection、Sports Event，保留資料與既有內頁入口；列表數量與類型篩選依可見影片計算。

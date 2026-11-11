@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, Check, FileText, Film, Info, Languages, Plus, ChevronDown, ChevronRight, ChevronUp, Search, Sparkles, Upload, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ import { videos } from "./mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 import { translateTag, type Locale } from "@/i18n"
 
-type Item = { id: string; name: string; source: string; key: string }
+type Item = { id: string; name: string; source: string; key: string; thumbnail?: string; localPreview?: boolean }
 function FocusTags({ defaults, disabled = false, locale = "en" }: { defaults: string[]; disabled?: boolean; locale?: Locale }) {
   const [tags, setTags] = useState(defaults)
   const [draft, setDraft] = useState("")
@@ -80,34 +80,52 @@ function Analysis({ locale = "en" }: { locale?: Locale }) {
 export default function AddVideo({ onBack, title = "Add Content", initialPickerOpen = false, locale = "en" }: { onBack: () => void; title?: string; initialPickerOpen?: boolean; locale?: Locale }) {
   const [items, setItems] = useState<Item[]>([])
   const [error, setError] = useState("")
+  const [analysisName, setAnalysisName] = useState(() => {
+    const timestamp = new Intl.DateTimeFormat("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date())
+    return `AI Analysis_V1 · ${timestamp}`
+  })
   const [language, setLanguage] = useState("auto")
   const [dragging, setDragging] = useState(false)
   const [review, setReview] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(initialPickerOpen)
   const [uploadSource, setUploadSource] = useState<"local" | "assets">("local")
   const [selectedAsset, setSelectedAsset] = useState("")
+  const [showStickyActions, setShowStickyActions] = useState(false)
   const input = useRef<HTMLInputElement>(null)
+  const actions = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const target = actions.current
+    if (!target) return
+    const observer = new IntersectionObserver(([entry]) => setShowStickyActions(!entry.isIntersecting))
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [])
+  useEffect(() => () => {
+    items.filter(item => item.localPreview && item.thumbnail).forEach(item => URL.revokeObjectURL(item.thumbnail!))
+  }, [items])
   const files = (list: FileList | File[]) => {
     const incoming = Array.from(list)
     const valid = incoming.filter(file => file.type.startsWith("video/") || /\.(mp4|mov|m4v|webm|mkv)$/i.test(file.name))
     if (!valid.length) { setError("Choose a supported video file."); return }
     const file = valid[0]
     setError(incoming.length > 1 ? "Only one video can be selected at a time. The first supported file was added." : "")
-    setItems([{ id: crypto.randomUUID(), name: file.name, source: `Local file · ${(file.size / 1024 / 1024).toFixed(1)} MB`, key: `${file.name}:${file.size}:${file.lastModified}` }])
+    setItems([{ id: crypto.randomUUID(), name: file.name, source: `Local file · ${(file.size / 1024 / 1024).toFixed(1)} MB`, key: `${file.name}:${file.size}:${file.lastModified}`, thumbnail: URL.createObjectURL(file), localPreview: true }])
     setPickerOpen(false)
     setReview(false)
   }
   const addAssets = () => {
     const video = videos.find(item => item.id === selectedAsset)
     if (!video) return
-    setItems([{ id: crypto.randomUUID(), name: video.title, source: `Video Assets · ${video.id} · ${video.duration}`, key: `asset:${video.id}` }])
+    const thumbnail = video.poster ? `${import.meta.env.BASE_URL}${video.poster}` : video.id === "TELA-6825" ? gourmetThumbnail : undefined
+    setItems([{ id: crypto.randomUUID(), name: video.title, source: `Video Assets · ${video.id} · ${video.duration}`, key: `asset:${video.id}`, thumbnail }])
     setSelectedAsset("")
     setPickerOpen(false)
     setReview(false)
   }
   return <div className="mx-auto max-w-[1200px] pb-5">
     {title !== "AI Analyze" && <button onClick={onBack} className="mb-5 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900"><ArrowLeft size={14} />Back to Video Assets</button>}
-    <div className="mb-7 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div><div className="flex gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>
+    <div className="mb-7 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-3xl font-semibold tracking-tight">{title}</h1><p className="mt-2 text-base text-slate-500">Bring your videos in. Let AI handle the details.</p></div><div ref={actions} className="flex gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>
+    {showStickyActions && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1256px] items-center justify-between gap-4 px-4 sm:px-7"><Input value={analysisName} onChange={event => setAnalysisName(event.target.value)} maxLength={120} aria-label="AI Analysis Name" className="h-9 w-full max-w-sm bg-white/60 text-sm shadow-none" /><div className="flex shrink-0 gap-2"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div></div>}
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(400px,1.15fr)]">
       <div className="space-y-5 xl:sticky xl:top-6">
         <Card className="gap-0 rounded-xl p-6 shadow-none">
@@ -130,8 +148,8 @@ export default function AddVideo({ onBack, title = "Add Content", initialPickerO
             </Dialog.Portal>
           </Dialog.Root>
           {error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
-          <div className="mt-6 flex items-center justify-between border-t pt-5"><h3 className="text-sm font-medium">Selected video <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-slate-500">{items.length}</span></h3></div>
-          {items.length ? <ul className="mt-3 max-h-64 overflow-auto divide-y">{items.map(item => <li key={item.id} className="flex items-center gap-3 py-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><Film size={18} /></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{item.name}</p><p className="mt-1 text-sm text-slate-400">{item.source}</p></div><button aria-label={`Remove ${item.name}`} onClick={() => { setItems(items.filter(v => v.id !== item.id)); setReview(false) }} className="p-2 text-slate-400 hover:text-slate-900"><X size={14} /></button></li>)}</ul> : <p className="py-7 text-center text-sm text-slate-400">Your selected videos will appear here.</p>}
+          <div className="mt-6 flex items-center justify-between border-t pt-5"><h3 className="text-sm font-medium">Selected video</h3></div>
+          {items.length ? <ul className="mt-3 max-h-64 overflow-auto divide-y">{items.map(item => <li key={item.id} className="flex items-center gap-3 py-3">{item.thumbnail ? item.localPreview ? <video src={item.thumbnail} muted preload="metadata" aria-label={`${item.name} thumbnail`} className="h-12 w-20 shrink-0 rounded-lg bg-slate-100 object-cover" /> : <img src={item.thumbnail} alt={`${item.name} thumbnail`} className="h-12 w-20 shrink-0 rounded-lg bg-slate-100 object-cover" /> : <span className="flex h-12 w-20 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600"><Film size={18} /></span>}<div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{item.name}</p><p className="mt-1 text-sm text-slate-400">{item.source}</p></div><button aria-label={`Remove ${item.name}`} onClick={() => { setItems(items.filter(v => v.id !== item.id)); setReview(false) }} className="p-2 text-slate-400 hover:text-slate-900"><X size={14} /></button></li>)}</ul> : <p className="py-7 text-center text-sm text-slate-400">Your selected videos will appear here.</p>}
         </Card>
       </div>
       <div className="space-y-4">

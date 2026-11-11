@@ -392,8 +392,14 @@
 - 語系選中狀態移除底線，只保留字重與文字深淺；全站未預先定義的內容改用瀏覽器內建機器翻譯，涵蓋 AI Chapter 與其他頁面動態文案。
 - 修正全站翻譯監聽器重複寫入相同文字造成的循環觸發，確保語系按鈕點擊後正常切換。
 
-### 2026-11-11 | AI Metadata 欄位調整
+### 2026-11-11 | AI Analyze V4
 
 - AI Metadata 暫時移除 Video-level tags 區塊，保留 Description 設定。
 - 卡片順序維持 Subtitle、AI Chapter、AI Metadata。
 - Cancel 與 AI Generate 操作移至頁面大標題右側，移除獨立 Toolbar Panel 與選取數量說明。
+- 標題區與右側操作按鈕改為垂直置中對齊。
+- Selected video 清單改為顯示影片縮圖；本機檔案使用影片預覽，Video Assets 沿用素材縮圖。
+- Selected video 標題移除影片數量標記。
+- 頁面標題操作捲出畫面後，頂部顯示透明毛玻璃 Action Bar，持續提供 Cancel 與 AI Generate 操作。
+- Analyze name Card 暫時隱藏；系統仍以 `AI Analysis_V1 · YYYY-MM-DD HH:mm` 產生預設名稱供固定 Action Bar 顯示。
+- 下捲後的固定 Action Bar 左側提供可直接編輯的名稱 Text field，不顯示欄位標題。

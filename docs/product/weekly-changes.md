@@ -407,3 +407,9 @@
 - Reality Show 的 Highlight Type 新增 Challenge、Reveal、Reaction、Conflict、Elimination、Heartwarming Moment。
 - Nostalgia Collection 的 Highlight Type 新增 Archive Footage、Then and Now、Reunion、Tribute、Milestone、Memory Lane；Sports Event 的 Highlight Type 維持待確認。
 - Sports Event 新增 Scoring Type Tag Category：Three-pointer、Free Throw、Goal、Home Run、Ace。
+- Choose a video Popup 改為單頁排列：上方 From Local 上傳區，下方直接顯示 Existing Video Assets，移除來源分頁切換。
+- Existing Video Assets 改為 16:9 縮圖為主的 Video Grid，桌面版每排四支影片；名稱與 ID 顯示於縮圖下方，選中狀態僅使用縮圖外框與勾選圖示。
+- From Local 選取影片後，Selected video 顯示較大的影片縮圖、Uploading 狀態與進度條，完成後切換為 Upload complete。
+- 左側影片選擇卡片標題由 Upload File 改為 Choose a video。
+- Choose a video 主操作文案明確標示可從 Local 上傳或從 Video Assets 選取，並強調 Video Assets 入口。
+- From Local 影片上傳期間停用 AI Generate；上傳完成後才開放操作，標題列與固定 Action Bar 狀態同步。

@@ -72,7 +72,8 @@ export function useSiteMachineTranslation(locale: Locale) {
       const trailing = original.match(/\s*$/)?.[0] ?? ""
       const value = original.trim()
       const result = await machineTranslate(locale, value)
-      if (!cancelled && node.isConnected) node.nodeValue = `${leading}${result}${trailing}`
+      const next = `${leading}${result}${trailing}`
+      if (!cancelled && node.isConnected && node.nodeValue !== next) node.nodeValue = next
     }
     const translateElement = async (element: Element) => {
       if (skipped(element)) return

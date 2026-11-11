@@ -79,6 +79,7 @@ import {
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
 import { translate, translateTag, type Locale } from "@/i18n"
+import { useSiteMachineTranslation } from "@/use-site-machine-translation"
 
 type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video" | "ai-analyze" | "template-settings"
 const labels: Record<Page, string> = {
@@ -612,6 +613,7 @@ function Workspace() {
   const [detailOrigin, setDetailOrigin] = React.useState<"video" | "examples">(() => window.location.hash.endsWith("/examples") ? "examples" : "video")
   const { isMobile, setOpenMobile } = useSidebar()
   const t = (text: string) => translate(locale, text)
+  useSiteMachineTranslation(locale)
 
   React.useEffect(() => { window.scrollTo(0, 0) }, [page])
 
@@ -775,7 +777,7 @@ function Workspace() {
             </Breadcrumb>
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-3" aria-label="Machine translation language"><button type="button" aria-pressed={locale === "en"} onClick={() => setLocale("en")} className={`border-b py-1 text-xs transition-colors ${locale === "en" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>EN</button><button type="button" aria-pressed={locale === "zh"} onClick={() => setLocale("zh")} className={`border-b py-1 text-xs transition-colors ${locale === "zh" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>中</button><button type="button" aria-pressed={locale === "ja"} onClick={() => setLocale("ja")} className={`border-b py-1 text-xs transition-colors ${locale === "ja" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>日</button></div>
+            <div className="flex items-center gap-3" aria-label="Machine translation language" data-no-translate><button type="button" aria-pressed={locale === "en"} onClick={() => setLocale("en")} className={`py-1 text-xs transition-colors ${locale === "en" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>EN</button><button type="button" aria-pressed={locale === "zh"} onClick={() => setLocale("zh")} className={`py-1 text-xs transition-colors ${locale === "zh" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>中</button><button type="button" aria-pressed={locale === "ja"} onClick={() => setLocale("ja")} className={`py-1 text-xs transition-colors ${locale === "ja" ? "font-semibold text-slate-900" : "text-slate-400 hover:text-slate-700"}`}>日</button></div>
             <span className="hidden sm:inline">{t("Content team")}</span>
             <Avatar>
               <AvatarFallback>CT</AvatarFallback>

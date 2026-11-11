@@ -509,3 +509,9 @@
 
 - 移除 Video 縮圖的裝飾偽元素遮罩，保留片長標示。
 - Comedy 的 YouTube 嵌入回傳錯誤 150；本機遇到嵌入錯誤時自動播放使用者已提供的 MP4，維持 Clip 與時間軸同步。YouTube 仍為線上來源，原片不加入 Git。
+
+
+### 2026-11-11 | Comedy Show 更新播放連結
+
+- Comedy Show Video 內頁及既有 Comedy Highlight 範例改接使用者提供的新 YouTube 影片 qrdyfziYyHk；既有字幕切點與 Tag 沿用。
+- 更新時 YouTube 回報影片處理中；本機維持原片播放備援。

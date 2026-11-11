@@ -11,7 +11,7 @@ import PerformerAvatarFilter from "./PerformerAvatarFilter"
 import { comedyChapters, comedyClips, comedyDuration, comedyTime } from "./ComedyHighlightData"
 import type { ComedyClip } from "./ComedyHighlightData"
 
-const videoId = "cCmLjsKjrlE"
+const videoId = "qrdyfziYyHk"
 const videoUrl = `https://www.youtube.com/watch?v=${videoId}`
 const topicColors: Record<string, string> = {
   語言雙關: "#bfd8ec",

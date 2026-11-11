@@ -20,7 +20,7 @@
 
 ## Comedy Highlight 內頁（2026-11-03）
 
-- 來源影片：[M-1グランプリ2026 第一回戰 TOP1 ネタまとめ【後半】](https://www.youtube.com/watch?v=cCmLjsKjrlE)。使用者提供日文自動產生 SRT，涵蓋約 00:00:00–01:44:50；影片顯示長度 1:46:29。
+- 來源影片：[M-1グランプリ2026 第一回戰 TOP1 ネタまとめ【後半】](https://www.youtube.com/watch?v=qrdyfziYyHk)。使用者提供日文自動產生 SRT，涵蓋約 00:00:00–01:44:50；影片顯示長度 1:46:29。
 - 依字幕中的登場、收尾及對話主題，先整理段子候選，再合併為 10 個大章節與 47 個 Punchline 候選 Clip。章節由 00:00:00 連續涵蓋至影片終點；最後一章包含字幕結束後的片尾時段。
 - 每個 Clip 有暫定起訖、編輯標題、內容摘要與笑點手法；頁面沿用 Content detail 的 `ChapterTopicFilter`、`ChapterVideoPreview`、`ChapterTimelineView`、`ChapterListPanel`。Comedy 頁面在共用預覽元件中嵌入指定 YouTube 影片；點擊時間軸或右側 Clip 會從所選時間點載入影片。
 - `[笑い]` 與 `[拍手]` 只在章節或候選 Clip 的字幕時間範圍內出現對應 SRT 註記時顯示；尚未聽辨音訊，不能當作已核對的觀眾反應。

@@ -13,20 +13,21 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { readTemplates } from "./template-settings"
 import { videos } from "./mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
+import { translateTag, type Locale } from "@/i18n"
 
 type Item = { id: string; name: string; source: string; key: string }
-function FocusTags({ defaults, disabled = false }: { defaults: string[]; disabled?: boolean }) {
+function FocusTags({ defaults, disabled = false, locale = "en" }: { defaults: string[]; disabled?: boolean; locale?: Locale }) {
   const [tags, setTags] = useState(defaults)
   const [draft, setDraft] = useState("")
   const [editing, setEditing] = useState(false)
   const add = () => { const value = draft.trim(); if (!value || tags.some(t => t.toLowerCase() === value.toLowerCase())) return; setTags([...tags, value]); setDraft(""); setEditing(false) }
   return <fieldset disabled={disabled} className="mt-5 space-y-3 disabled:opacity-40">
     <legend className="text-sm font-medium text-slate-700">Tagging Focus</legend>
-    <div className="flex flex-wrap gap-2">{tags.map(tag => <Badge key={tag} variant="outline" className="!h-auto min-h-8 gap-2 px-3 py-1.5 text-sm">{tag}<button type="button" aria-label={`Remove ${tag}`} onClick={() => setTags(tags.filter(t => t !== tag))} className="rounded text-slate-400 hover:text-slate-900 focus-visible:outline-2"><X size={12} /></button></Badge>)}<Button type="button" size="icon" variant="outline" className="size-8" aria-label="Add focus tag" aria-expanded={editing} onClick={() => setEditing(true)}><Plus size={14} /></Button></div>
+    <div className="flex flex-wrap gap-2">{tags.map(tag => <Badge key={tag} variant="outline" className="!h-auto min-h-8 gap-2 px-3 py-1.5 text-sm">{translateTag(locale, tag)}<button type="button" aria-label={`Remove ${tag}`} onClick={() => setTags(tags.filter(t => t !== tag))} className="rounded text-slate-400 hover:text-slate-900 focus-visible:outline-2"><X size={12} /></button></Badge>)}<Button type="button" size="icon" variant="outline" className="size-8" aria-label="Add focus tag" aria-expanded={editing} onClick={() => setEditing(true)}><Plus size={14} /></Button></div>
     {editing && <div className="flex gap-2"><Input aria-label={`Add ${defaults[0]} focus tag`} placeholder="Add a focus tag…" value={draft} maxLength={40} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); add() } if (e.key === "Escape") { setDraft(""); setEditing(false) } }} className="h-9 text-base shadow-none" /><Button type="button" size="icon" variant="outline" className="size-8 shrink-0" aria-label={`Add ${defaults[0]} tag`} disabled={!draft.trim()} onClick={add}><Check size={14} /></Button><Button type="button" size="icon" variant="ghost" className="size-8 shrink-0" aria-label="Cancel adding tag" onClick={() => { setDraft(""); setEditing(false) }}><X size={14} /></Button></div>}
   </fieldset>
 }
-function Analysis() {
+function Analysis({ locale = "en" }: { locale?: Locale }) {
   const [templates] = useState(readTemplates)
   const [template, setTemplate] = useState(templates[0].name)
   const [categories, setCategories] = useState(() => structuredClone(templates[0].categories))
@@ -68,7 +69,7 @@ function Analysis() {
         {saved && <p role="status" className="mt-2 text-sm text-green-700">Category saved.</p>}
         <div className="mt-4 space-y-2">{categories.map((category, index) => <div key={category.name} className={`overflow-hidden rounded-lg border transition-shadow ${expanded === category.name ? "shadow-md" : "shadow-none"}`}>
           <div className="flex items-center gap-2 bg-muted/40 px-3 py-3"><button type="button" aria-expanded={expanded === category.name} aria-controls={`category-${index}`} onClick={() => setExpanded(expanded === category.name ? "" : category.name)} className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm font-semibold">{category.name}<ChevronDown size={14} className={`ml-auto shrink-0 transition-transform ${expanded === category.name ? "rotate-180" : ""}`} /></button>{!templates.find(item => item.name === template)?.categories.some(item => item.name === category.name) && <Button type="button" size="icon" variant="ghost" className="size-7 text-slate-500" aria-label={`Remove ${category.name} category`} onClick={() => removeCategory(category.name)}><X size={14} /></Button>}<Checkbox checked={category.enabled} onCheckedChange={value => setCategories(categories.map((item, itemIndex) => itemIndex === index ? { ...item, enabled: value === true } : item))} aria-label={`Enable ${category.name}`} className="shrink-0" /></div>
-          <div id={`category-${index}`} hidden={expanded !== category.name}><fieldset disabled={!category.enabled} className="space-y-3 border-t bg-[radial-gradient(circle_at_top_right,rgba(226,232,240,0.42)_0%,rgba(248,250,252,0.3)_22%,rgba(255,255,255,0.98)_48%)] p-3 disabled:opacity-40"><div><div className="flex items-center gap-1.5"><label htmlFor={`prompt-${index}`} className="text-sm font-medium">Prompt</label><TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" aria-label="About Prompt" className="inline-flex size-5 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 focus-visible:outline-2"><Info size={14} /></button></TooltipTrigger><TooltipContent className="max-w-80 text-sm leading-relaxed">A natural language instruction that tells the model what to analyze or generate about the video or images. Be specific about the format and content you need.</TooltipContent></Tooltip></TooltipProvider></div><Textarea id={`prompt-${index}`} key={`${template}-${category.name}`} rows={4} className="mt-2 min-h-28 resize-y text-sm" defaultValue={category.prompt} placeholder="Describe what AI should identify…" /></div><FocusTags key={`${template}-${category.name}`} defaults={category.tags} /><label className="flex items-center gap-2 text-sm"><Checkbox defaultChecked aria-label={`Allow new tags for ${category.name}`} />Allow new tags</label></fieldset></div>
+          <div id={`category-${index}`} hidden={expanded !== category.name}><fieldset disabled={!category.enabled} className="space-y-3 border-t bg-[radial-gradient(circle_at_top_right,rgba(226,232,240,0.42)_0%,rgba(248,250,252,0.3)_22%,rgba(255,255,255,0.98)_48%)] p-3 disabled:opacity-40"><div><div className="flex items-center gap-1.5"><label htmlFor={`prompt-${index}`} className="text-sm font-medium">Prompt</label><TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" aria-label="About Prompt" className="inline-flex size-5 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 focus-visible:outline-2"><Info size={14} /></button></TooltipTrigger><TooltipContent className="max-w-80 text-sm leading-relaxed">A natural language instruction that tells the model what to analyze or generate about the video or images. Be specific about the format and content you need.</TooltipContent></Tooltip></TooltipProvider></div><Textarea id={`prompt-${index}`} key={`${template}-${category.name}`} rows={4} className="mt-2 min-h-28 resize-y text-sm" defaultValue={category.prompt} placeholder="Describe what AI should identify…" /></div><FocusTags key={`${template}-${category.name}`} defaults={category.tags} locale={locale} /><label className="flex items-center gap-2 text-sm"><Checkbox defaultChecked aria-label={`Allow new tags for ${category.name}`} />Allow new tags</label></fieldset></div>
         </div>)}</div>
       </div>
     </Card>
@@ -80,7 +81,7 @@ function Analysis() {
     </Card>
   </div>
 }
-export default function AddVideo({ onBack, title = "Add Content", initialPickerOpen = false }: { onBack: () => void; title?: string; initialPickerOpen?: boolean }) {
+export default function AddVideo({ onBack, title = "Add Content", initialPickerOpen = false, locale = "en" }: { onBack: () => void; title?: string; initialPickerOpen?: boolean; locale?: Locale }) {
   const [items, setItems] = useState<Item[]>([])
   const [error, setError] = useState("")
   const [language, setLanguage] = useState("auto")
@@ -139,7 +140,7 @@ export default function AddVideo({ onBack, title = "Add Content", initialPickerO
       </div>
       <div className="space-y-4">
         <Card className="gap-0 rounded-xl p-5 shadow-none"><div className="flex items-start gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-200 text-slate-700"><Languages size={20} /></span><div><h2 className="text-lg font-semibold">Subtitle</h2><p className="mt-1 text-sm leading-5 text-slate-500">Choose the video's spoken language to improve AI analysis accuracy.</p></div></div><div className="mt-4"><label className="mb-2 block text-sm font-medium">Input language</label><Select value={language} onValueChange={setLanguage}><SelectTrigger aria-label="Input language" className="!h-10 w-full px-3 text-sm shadow-none [&>svg]:!size-4"><SelectValue /></SelectTrigger><SelectContent position="popper" align="start" className="min-w-[var(--radix-select-trigger-width)]">{[["auto", "Auto"], ["ja", "Japanese"], ["en", "English"], ["zh", "Chinese"], ["ko", "Korean"], ["es", "Spanish"]].map(([value, label]) => <SelectItem className="py-1.5 text-sm" key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select></div></Card>
-        <Analysis />
+        <Analysis locale={locale} />
       </div>
     </div>
     <div className="mt-7 flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-white px-5 py-4"><div><p className="text-sm font-medium">{items.length} {items.length === 1 ? "video" : "videos"} selected</p><p className="mt-1 text-sm text-slate-400">Set up once, apply to every video. You can review and refine AI results after processing.</p></div><div className="flex gap-3"><Button variant="ghost" onClick={onBack}>Cancel</Button><Button disabled={!items.length} onClick={() => setReview(true)}><Sparkles size={16} />AI Generate</Button></div></div>

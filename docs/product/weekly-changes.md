@@ -385,3 +385,7 @@
 - Upload Asset Popup 調整為中型尺寸：880px 最大寬度、320px 拖放區高度。
 - Video Assets 列表的 AI analysis 欄位改名為 Status，狀態統一為 Uploading、Analyzing、Failed、Completed。
 - Video Assets 右上角新增按鈕文案由 Add Assets 改為 Add Asset。
+- 頁首右上角新增 EN／中文／日文即時語系切換，預設 EN；共用導覽、Video Assets、狀態與 Add Asset Popup 支援機器翻譯文案。
+- Video Assets 內頁的 Metadata Summary 與 Synopsis 內容支援語系切換；內頁縮圖移除黃色圓形遮罩。
+- 語系切換簡化為 EN／中／日純文字，移除容器外框與底色，選中狀態以細底線標示。
+- Metadata Tags 支援 EN／中／日顯示翻譯；原始 Tag 值保持不變，避免影響資料鍵值與搜尋。

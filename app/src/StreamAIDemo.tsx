@@ -78,6 +78,7 @@ import {
 } from "@/components/ui/table"
 import { videos, type AnalysisStatus, type Video } from "@/mock-data/videos"
 import gourmetThumbnail from "@/assets/gourmet-solitary-thumbnail.png"
+import { translate, translateTag, type Locale } from "@/i18n"
 
 type Page = "home" | "video" | "library" | "search" | "examples" | "actor" | "comedy" | "detail" | "add-video" | "ai-analyze" | "template-settings"
 const labels: Record<Page, string> = {
@@ -145,7 +146,7 @@ function pageFromHash(): Page {
   return "video"
 }
 
-function StatusBadge({ status }: { status: AnalysisStatus }) {
+function StatusBadge({ status, locale = "en" }: { status: AnalysisStatus; locale?: Locale }) {
   const color = {
     Uploading: "bg-amber-50 text-amber-700",
     Completed: "bg-emerald-50 text-emerald-700",
@@ -158,7 +159,7 @@ function StatusBadge({ status }: { status: AnalysisStatus }) {
       className={`gap-1.5 rounded-md border-0 ${color}`}
     >
       <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-      {status}
+      {translate(locale, status)}
     </Badge>
   )
 }
@@ -280,7 +281,7 @@ function metadataGroupsFor(video: Video): MetadataGroup[] {
   })) ?? []
 }
 
-function MetadataGroupCard({ group }: { group: MetadataGroup }) {
+function MetadataGroupCard({ group, locale = "en" }: { group: MetadataGroup; locale?: Locale }) {
   const Icon = group.icon
   const selected = group.choices.filter((choice) => choice.selected).length
   return (
@@ -320,7 +321,7 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
                   className={`size-3 rounded-full border ${choice.selected ? "border-primary bg-primary shadow-[inset_0_0_0_3px_var(--background)]" : "border-muted-foreground/50 bg-background"}`}
                   aria-hidden="true"
                 />
-                {choice.label}
+                {translateTag(locale, choice.label)}
                 {choice.confidence && (
                   <span className="ml-0.5 tabular-nums">
                     {choice.confidence}
@@ -336,11 +337,12 @@ function MetadataGroupCard({ group }: { group: MetadataGroup }) {
   )
 }
 
-function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Metadata", chapterContent }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode }) {
+function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Metadata", chapterContent, locale = "en" }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const tabs = ["AI Metadata", "AI Chapter"]
   const videoMetadataGroups = metadataGroupsFor(video)
   const [showPlayer, setShowPlayer] = React.useState(false)
+  const t = (text: string) => translate(locale, text)
   const videoSource = video.localVideo && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") ? `${import.meta.env.BASE_URL}${video.localVideo}` : null
   return (
     <div>
@@ -463,20 +465,20 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
               </CardHeader>
             </Card>
             {videoMetadataGroups.map((group) => (
-              <MetadataGroupCard key={group.label} group={group} />
+              <MetadataGroupCard key={group.label} group={group} locale={locale} />
             ))}
             <Card className="shadow-sm">
               <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
                 <div className="flex gap-3">
                   <FileText className="size-5" />
                   <h3 className="font-semibold">
-                    Metadata Summary
+                    {t("Metadata Summary")}
                     <br />
-                    {video.title === "Concert" ? "(Subtitle-based)" : "(AI Generated)"}
+                    ({t(video.title === "Concert" ? "Subtitle-based" : "AI Generated")})
                   </h3>
                 </div>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  {video.title === "Concert" ? "The supplied subtitles cover pre-show nerves, rehearsal, audience reflections, a group name mention, and an onstage song. Mood and topic clips are linked to their source timecodes. The group name, performance type, and music genre still need review." : "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。"}
+                  {t(video.title === "Concert" ? "The supplied subtitles cover pre-show nerves, rehearsal, audience reflections, a group name mention, and an onstage song. Mood and topic clips are linked to their source timecodes. The group name, performance type, and music genre still need review." : "《孤独のグルメ SP》透過原作風格，主角井之頭五郎在不同城市品嚐當地美食，透過美食展現地域文化與人情味。影片以真實的飲食場景和內心獨白，呈現出療癒、溫暖且富有人情味的旅程。")}
                 </p>
               </CardContent>
             </Card>
@@ -484,10 +486,10 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
           <aside className="space-y-4">
             <Card className="shadow-sm">
               <CardHeader className="flex-row items-center justify-between">
-                <CardTitle>Content Overview</CardTitle>
+                <CardTitle>{t("Content Overview")}</CardTitle>
                 <Button variant="outline" size="sm">
                   <Pencil />
-                  Edit
+                  {t("Edit")}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -496,11 +498,11 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
                   <div>
                     <Badge variant="secondary" className="mb-2">
                       <Sparkles />
-                      {video.title === "Concert" ? "Subtitle-based" : "AI Generated"}
+                      {t(video.title === "Concert" ? "Subtitle-based" : "AI Generated")}
                     </Badge>
-                    <h3 className="font-semibold">Synopsis</h3>
+                    <h3 className="font-semibold">{t("Synopsis")}</h3>
                     <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                      {video.title === "Concert" ? "Performers explore the venue, prepare backstage, reflect on the audience, and sing onstage. This summary follows the supplied Japanese subtitles." : "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food."}
+                      {t(video.title === "Concert" ? "Performers explore the venue, prepare backstage, reflect on the audience, and sing onstage. This summary follows the supplied Japanese subtitles." : "Inogashira Goro visits various regions to enjoy their unique local cuisine. Through a personal and detailed dining journey, the show portrays the richness of local culture and the heartfelt connection to food.")}
                     </p>
                   </div>
                 </div>
@@ -600,6 +602,7 @@ function Workspace() {
   const [query, setQuery] = React.useState("")
   const [typeFilter, setTypeFilter] = React.useState("all")
   const [statusFilter, setStatusFilter] = React.useState("all")
+  const [locale, setLocale] = React.useState<Locale>("en")
   const [assetPickerOpen, setAssetPickerOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<Video | null>(() => {
     if (pageFromHash() !== "detail") return null
@@ -608,6 +611,7 @@ function Workspace() {
   })
   const [detailOrigin, setDetailOrigin] = React.useState<"video" | "examples">(() => window.location.hash.endsWith("/examples") ? "examples" : "video")
   const { isMobile, setOpenMobile } = useSidebar()
+  const t = (text: string) => translate(locale, text)
 
   React.useEffect(() => { window.scrollTo(0, 0) }, [page])
 
@@ -729,7 +733,7 @@ function Workspace() {
                     className="h-10 rounded-lg px-3"
                   >
                     <Icon aria-hidden="true" />
-                    <span>{labels[item]}</span>
+                    <span>{t(labels[item])}</span>
                   </SidebarMenuButton>
 
                 </SidebarMenuItem>
@@ -739,9 +743,9 @@ function Workspace() {
         </SidebarContent>
         <SidebarFooter className="px-5 pb-5 text-xs text-muted-foreground">
           <div className="border-t border-sidebar-border pt-4">
-            Preview mode
+            {t("Preview mode")}
             <br />
-            Local mock data
+            {t("Local mock data")}
           </div>
         </SidebarFooter>
       </Sidebar>
@@ -754,7 +758,7 @@ function Workspace() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbPage>
-                    {page === "detail" ? "Video Assets" : (page === "actor" || page === "comedy") ? "Examples" : labels[page]}
+                    {t(page === "detail" ? "Video Assets" : (page === "actor" || page === "comedy") ? "Examples" : labels[page])}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
                 {page === "search" && <>{activeDemo && <><BreadcrumbSeparator /><BreadcrumbItem><span>{assistantRegistry.find(a => a.id === activeDemo)?.name || activeDemo}</span></BreadcrumbItem></>}<BreadcrumbSeparator /><BreadcrumbItem><span>{discoverySections.find(item => item.id === discoverySection)?.label}</span></BreadcrumbItem></>}
@@ -763,25 +767,26 @@ function Workspace() {
                   <>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                    <span>All content</span>
+                    <span>{t("All content")}</span>
                     </BreadcrumbItem>
                   </>
                 )}
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="hidden sm:inline">Content team</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3" aria-label="Machine translation language"><button type="button" aria-pressed={locale === "en"} onClick={() => setLocale("en")} className={`border-b py-1 text-xs transition-colors ${locale === "en" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>EN</button><button type="button" aria-pressed={locale === "zh"} onClick={() => setLocale("zh")} className={`border-b py-1 text-xs transition-colors ${locale === "zh" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>中</button><button type="button" aria-pressed={locale === "ja"} onClick={() => setLocale("ja")} className={`border-b py-1 text-xs transition-colors ${locale === "ja" ? "border-slate-800 font-semibold text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"}`}>日</button></div>
+            <span className="hidden sm:inline">{t("Content team")}</span>
             <Avatar>
               <AvatarFallback>CT</AvatarFallback>
             </Avatar>
           </div>
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
-          {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
-            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} />
+          {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} locale={locale} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} locale={locale} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
+            <ContentDetailTemplate key="content-detail" video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} locale={locale} />
           ) : page === "actor" ? (
-            <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} />
+            <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} locale={locale} />
           ) : page === "comedy" ? (
             <ComedyHighlightDetail onBack={() => navigate("examples")} />
           ) : page === "video" ? (
@@ -789,16 +794,15 @@ function Workspace() {
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <h1 className="text-3xl font-semibold tracking-tight">
-                    Video Assets
+                    {t("Video Assets")}
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Browse, filter, and review AI analysis across your video
-                    catalog.
+                    {t("Browse, filter, and review AI analysis across your video catalog.")}
                   </p>
                 </div>
                 <Button onClick={() => setAssetPickerOpen(true)}>
                   <Plus />
-                  Add Asset
+                  {t("Add Asset")}
                 </Button>
               </div>
               <Card className="gap-0 overflow-hidden py-0 shadow-sm">
@@ -811,7 +815,7 @@ function Workspace() {
                     <Input
                       aria-label="Search videos by title or ID"
                       type="search"
-                      placeholder="Search by title or ID"
+                      placeholder={t("Search by title or ID")}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
                       className="pl-9"
@@ -822,10 +826,10 @@ function Workspace() {
                       aria-label="Filter by content type"
                       className="min-w-32"
                     >
-                      <SelectValue placeholder="All types" />
+                      <SelectValue placeholder={t("All types")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All types</SelectItem>
+                      <SelectItem value="all">{t("All types")}</SelectItem>
                       {types.map((type) => (
                         <SelectItem key={type} value={type}>
                           {type}
@@ -838,13 +842,13 @@ function Workspace() {
                       aria-label="Filter by AI analysis status"
                       className="min-w-36"
                     >
-                      <SelectValue placeholder="All statuses" />
+                      <SelectValue placeholder={t("All statuses")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
+                      <SelectItem value="all">{t("All statuses")}</SelectItem>
                       {statuses.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {status}
+                          <SelectItem key={status} value={status}>
+                            {t(status)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -854,7 +858,7 @@ function Workspace() {
                     role="status"
                   >
                     {filtered.length}{" "}
-                    {filtered.length === 1 ? "video" : "videos"}
+                    {t(filtered.length === 1 ? "video" : "videos")}
                   </span>
                 </div>
                 {filtered.length ? (
@@ -862,19 +866,19 @@ function Workspace() {
                     <TableHeader>
                       <TableRow className="bg-muted/50 hover:bg-muted/50">
                         <TableHead className="pl-5 text-xs uppercase">
-                          Video Assets
+                          {t("Video Assets")}
                         </TableHead>
                         <TableHead className="text-xs uppercase">
-                          Type
+                          {t("Type")}
                         </TableHead>
                         <TableHead className="hidden text-xs uppercase md:table-cell">
-                          Duration
+                          {t("Duration")}
                         </TableHead>
                         <TableHead className="hidden text-xs uppercase lg:table-cell">
-                          Year
+                          {t("Year")}
                         </TableHead>
                         <TableHead className="hidden text-xs uppercase sm:table-cell">
-                          Status
+                          {t("Status")}
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -917,7 +921,7 @@ function Workspace() {
                             {video.year}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell">
-                            <StatusBadge status={video.status} />
+                            <StatusBadge status={video.status} locale={locale} />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -943,7 +947,7 @@ function Workspace() {
                   </div>
                 )}
               </Card>
-              <VideoPickerDialog open={assetPickerOpen} onOpenChange={setAssetPickerOpen} />
+              <VideoPickerDialog open={assetPickerOpen} onOpenChange={setAssetPickerOpen} locale={locale} />
             </>
           ) : page === "examples" ? (
             <ExamplesPage onOpenDetail={openExample} />

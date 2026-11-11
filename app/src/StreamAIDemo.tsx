@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   ArrowLeft,
   CheckCircle2,
+  Film,
   Clapperboard,
   FileText,
   Heart,
@@ -125,6 +126,7 @@ function sectionFromHash() {
 const hiddenVideoIds = new Set(["TELA-6825", "ANI-0456", "DOC-8803"])
 const types = [...new Set(videos.filter(video => !hiddenVideoIds.has(video.id)).map((video) => video.type))]
 const statuses: AnalysisStatus[] = [
+  "Not analyzed",
   "Uploading",
   "Analyzing",
   "Failed",
@@ -156,6 +158,7 @@ function detailTabFromHash(): "AI Chapter" | "AI Metadata" {
 
 function StatusBadge({ status, locale = "en" }: { status: AnalysisStatus; locale?: Locale }) {
   const color = {
+    "Not analyzed": "bg-slate-100 text-slate-500",
     Uploading: "bg-amber-50 text-amber-700",
     Completed: "bg-emerald-50 text-emerald-700",
     Analyzing: "bg-blue-50 text-blue-700",
@@ -185,9 +188,10 @@ function VideoThumbnail({
     <div
       role="img"
       aria-label={`${video.title} thumbnail`}
-      className={`video-thumb thumb-${video.color} relative shrink-0 overflow-hidden rounded-md ${large ? "w-full" : "w-20 sm:w-24"} ${className}`}
-      style={video.poster ? { backgroundImage: `url(${import.meta.env.BASE_URL}${video.poster})`, backgroundSize: "cover", backgroundPosition: "center" } : video.id === "TELA-6825" ? { backgroundImage: `url(${gourmetThumbnail})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+      className={`video-thumb ${video.hasAnalysis === false ? "bg-muted" : `thumb-${video.color}`} relative shrink-0 overflow-hidden rounded-md ${large ? "w-full" : "w-20 sm:w-24"} ${className}`}
+      style={video.poster ? { backgroundImage: `url(${import.meta.env.BASE_URL}${video.poster})`, backgroundSize: "cover", backgroundPosition: "center" } : video.id === "TELA-6825" ? { backgroundImage: `url(${gourmetThumbnail})`, backgroundSize: "cover", backgroundPosition: "center" } : video.hasAnalysis === false ? { background: "#f1f5f9" } : undefined}
     >
+      {video.hasAnalysis === false && <Film aria-hidden="true" className="absolute top-1/2 left-1/2 size-7 -translate-x-1/2 -translate-y-1/2 text-slate-300" />}
       <span className="absolute right-1 bottom-1 rounded bg-slate-950/75 px-1 py-0.5 text-[10px] leading-none text-white tabular-nums">
         {video.duration}
       </span>
@@ -279,6 +283,7 @@ const templateCategoryIcons: Record<string, typeof Heart> = {
   "Event Type": Clapperboard,
 }
 function metadataGroupsFor(video: Video): MetadataGroup[] {
+  if (video.hasAnalysis !== true) return []
   if (video.id === "TELA-6825") return metadataGroups
   const template = readTemplates().find(item => item.name === video.title)
   const taggedClips = video.id === "TRV-1129" ? realityClips : video.id === "MOV-7310" ? comedyShowClips : null
@@ -304,7 +309,7 @@ function MetadataGroupCard({ group, locale = "en" }: { group: MetadataGroup; loc
   )
 }
 
-function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Chapter", chapterContent, locale = "en" }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale }) {
+function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", initialTab = "AI Chapter", chapterContent, locale = "en", onAnalyze }: { video: Video; onBack: () => void; backLabel?: string; initialTab?: "AI Metadata" | "AI Chapter"; chapterContent?: React.ReactNode; locale?: Locale; onAnalyze?: () => void }) {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab)
   const [assetName, setAssetName] = React.useState(() => {
     const stored = localStorage.getItem(`kk-lab-asset-name-${video.id}`)
@@ -315,6 +320,7 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
     const timestamp = new Intl.DateTimeFormat("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date())
     return `AI Analysis_V1 · ${timestamp}`
   })
+  const hasAnalysis = video.hasAnalysis === true
   const tabs = ["AI Chapter", "AI Metadata"]
   const videoMetadataGroups = metadataGroupsFor(video)
   const [showStickyHeader, setShowStickyHeader] = React.useState(false)
@@ -356,22 +362,22 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
         <div className="ml-auto flex shrink-0 flex-col items-end justify-center gap-2">
           <StatusBadge status={video.status} locale={locale} />
           <div className="flex flex-wrap items-center gap-2">
-          <Select defaultValue="v1">
+          {hasAnalysis ? <Select defaultValue="v1">
             <SelectTrigger aria-label="Select version" className="w-72">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="v1">{analysisName}</SelectItem>
             </SelectContent>
-          </Select>
-          <Button>
+          </Select> : <span className="text-sm text-muted-foreground">{t("No analysis version")}</span>}
+          <Button onClick={onAnalyze}>
             <RefreshCw />
-            Re-analyze
+            {t(hasAnalysis ? "Re-analyze" : "AI Analyze")}
           </Button>
           </div>
         </div>
       </div>
-      {showStickyHeader && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 sm:px-7"><div className="flex min-w-0 items-center gap-2"><Button variant="ghost" size="icon-sm" aria-label={`Back to ${backLabel}`} onClick={onBack}><ArrowLeft /></Button><Breadcrumb><BreadcrumbList><BreadcrumbItem><button className="text-muted-foreground hover:text-foreground" onClick={onBack}>{backLabel}</button></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>{assetName}</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div className="flex shrink-0 items-center gap-2"><Select defaultValue="v1"><SelectTrigger aria-label="Select version" className="w-72 bg-white/50"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="v1">{analysisName}</SelectItem></SelectContent></Select><Button><RefreshCw />Re-analyze</Button></div></div></div>}
+      {showStickyHeader && <div className="fixed top-0 right-0 left-0 z-40 border-b border-slate-200/70 bg-white/70 shadow-sm backdrop-blur-md md:left-[var(--sidebar-width)]"><div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between gap-3 px-4 sm:px-7"><div className="flex min-w-0 items-center gap-2"><Button variant="ghost" size="icon-sm" aria-label={`Back to ${backLabel}`} onClick={onBack}><ArrowLeft /></Button><Breadcrumb><BreadcrumbList><BreadcrumbItem><button className="text-muted-foreground hover:text-foreground" onClick={onBack}>{backLabel}</button></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>{assetName}</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></div><div className="flex shrink-0 items-center gap-2">{hasAnalysis ? <Select defaultValue="v1"><SelectTrigger aria-label="Select version" className="w-72 bg-white/50"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="v1">{analysisName}</SelectItem></SelectContent></Select> : <span className="text-sm text-muted-foreground">{t("No analysis version")}</span>}<Button onClick={onAnalyze}><RefreshCw />{t(hasAnalysis ? "Re-analyze" : "AI Analyze")}</Button></div></div></div>}
       </section>
       <Tabs value={activeTab} onValueChange={changeTab} className="mt-3 mb-5">
         <TabsList
@@ -389,7 +395,14 @@ function ContentDetailTemplate({ video, onBack, backLabel = "Video Assets", init
           ))}
         </TabsList>
       </Tabs>
-      {activeTab === "AI Metadata" ? (
+      {!hasAnalysis ? (
+        <Card className="min-h-80 items-center justify-center gap-0 py-16 text-center shadow-none">
+          <Sparkles aria-hidden="true" className="mb-4 size-8 text-slate-300" />
+          <h2 className="text-base font-medium">{t("No AI analysis yet")}</h2>
+          <p className="mt-2 max-w-sm px-5 text-sm leading-6 text-muted-foreground">{t(activeTab === "AI Chapter" ? "Analyze this video to generate clips and tags." : "Analyze this video to generate a synopsis and metadata tags.")}</p>
+          <Button onClick={onAnalyze} className="mt-5"><Sparkles />{t("AI Analyze")}</Button>
+        </Card>
+      ) : activeTab === "AI Metadata" ? (
         <div className="grid items-start gap-4 xl:grid-cols-[1.05fr_1fr]">
           <section aria-labelledby="content-overview-title">
             <Card className="shadow-sm">
@@ -502,7 +515,7 @@ function Workspace() {
     window.history.pushState(null, "", `#${next}`)
     if (isMobile) setOpenMobile(false)
   }
-  const allVideos = [...createdAssets, ...videos].map(video => analysisJob?.video.id === video.id ? { ...video, status: analysisJob.status === "completed" ? "Completed" as const : "Analyzing" as const } : video)
+  const allVideos = [...createdAssets, ...videos.filter(video => !createdAssets.some(asset => asset.id === video.id))].map(video => analysisJob?.video.id === video.id ? { ...video, hasAnalysis: analysisJob.status === "completed" || video.hasAnalysis === true, status: analysisJob.status === "completed" ? "Completed" as const : "Analyzing" as const } : video)
 
   const navigateDiscovery = (section: string) => {
     if (!discoverySections.some(item => item.id === section)) return
@@ -544,6 +557,7 @@ function Workspace() {
       duration: "--:--",
       year: new Date().getFullYear(),
       status: "Analyzing",
+      hasAnalysis: false,
       color: 2,
     }
     if (!existing) setCreatedAssets(current => [video, ...current])
@@ -553,6 +567,7 @@ function Workspace() {
   const openAnalyzedAsset = () => {
     if (!analysisJob) return
     const video = allVideos.find(item => item.id === analysisJob.video.id) ?? { ...analysisJob.video, status: "Completed" as const }
+    setCreatedAssets(current => [video, ...current.filter(asset => asset.id !== video.id)])
     setAnalysisJob(null)
     openDetail(video)
   }
@@ -668,7 +683,7 @@ function Workspace() {
         </header>
         <div className="mx-auto w-full max-w-[1520px] px-4 py-7 sm:px-7">
           {page === "add-video" ? <AddVideo initialPickerOpen onBack={() => navigate("video")} locale={locale} /> : page === "ai-analyze" ? <AddVideo title="AI Analyze" onBack={() => navigate("video")} onGenerate={startAnalysis} locale={locale} /> : page === "template-settings" ? <TemplateSettings /> : page === "detail" && selected ? (
-            <ContentDetailTemplate key={`content-detail-${selected.id}`} video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} initialTab={detailOrigin === "examples" ? "AI Chapter" : detailTabFromHash()} locale={locale} />
+            <ContentDetailTemplate key={`content-detail-${selected.id}`} video={selected} onBack={() => navigate(detailOrigin)} backLabel={detailOrigin === "examples" ? "Examples" : "Video Assets"} initialTab={detailOrigin === "examples" ? "AI Chapter" : detailTabFromHash()} locale={locale} onAnalyze={() => navigate("ai-analyze")} />
           ) : page === "actor" ? (
             <ContentDetailTemplate key="actor-discovery" video={videos[0]} onBack={() => navigate("examples")} backLabel="Examples" initialTab="AI Chapter" chapterContent={<ActorDiscoveryContent />} locale={locale} />
           ) : page === "comedy" ? (
@@ -761,6 +776,7 @@ function Workspace() {
                         <TableHead className="hidden text-xs uppercase lg:table-cell">
                           {t("Year")}
                         </TableHead>
+                        <TableHead className="text-center text-xs uppercase">{t("AI Analysis")}</TableHead>
                         <TableHead className="hidden text-xs uppercase sm:table-cell">
                           {t("Status")}
                         </TableHead>
@@ -803,6 +819,9 @@ function Workspace() {
                           </TableCell>
                           <TableCell className="hidden tabular-nums lg:table-cell">
                             {video.year}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {video.hasAnalysis === true ? <span aria-label={t("AI analyzed")} title={t("AI analyzed")} className="inline-flex"><CheckCircle2 aria-hidden="true" className="size-5 text-black" /></span> : <span aria-label={t("Not analyzed")} className="text-muted-foreground">—</span>}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell">
                             <StatusBadge status={video.status} locale={locale} />
